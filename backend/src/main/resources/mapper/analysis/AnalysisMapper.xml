@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.analysis.AnalysisMapper">
+    <resultMap id="finding" type="com.smoa.analysis.AnalysisData$Finding">
+        <constructor>
+            <arg column="foundDate" javaType="java.time.LocalDate"/>
+            <arg column="foundTime" javaType="java.time.LocalTime"/>
+            <arg column="regionCode" javaType="java.lang.String"/>
+            <arg column="districtCode" javaType="java.lang.String"/>
+            <arg column="place" javaType="java.lang.String"/>
+            <arg column="classification" javaType="java.lang.String"/>
+            <arg column="manpikDate" javaType="java.time.LocalDate"/>
+            <arg column="findADate" javaType="java.time.LocalDate"/>
+        </constructor>
+    </resultMap>
+    <resultMap id="activity" type="com.smoa.analysis.AnalysisData$Activity">
+        <constructor>
+            <arg column="day" javaType="java.time.LocalDate"/>
+            <arg column="startTime" javaType="java.time.LocalTime"/>
+            <arg column="endTime" javaType="java.time.LocalTime"/>
+            <arg column="regionCode" javaType="java.lang.String"/>
+            <arg column="districtCode" javaType="java.lang.String"/>
+            <arg column="workerId" javaType="java.lang.String"/>
+            <arg column="workerCode" javaType="java.lang.String"/>
+            <arg column="workerName" javaType="java.lang.String"/>
+            <arg column="jobCode" javaType="java.lang.String"/>
+            <arg column="place" javaType="java.lang.String"/>
+            <arg column="sessionKey" javaType="java.lang.String"/>
+            <arg column="memo" javaType="java.lang.String"/>
+        </constructor>
+    </resultMap>
+
+    <sql id="scope">
+        AND (1 = 0
+        <if test="unassigned">OR S.ORG_MSTR_CODE IS NULL OR S.ORG_CODE IS NULL</if>
+        <foreach collection="districts" item="d">
+            OR (S.ORG_MSTR_CODE = #{d.regionCode} AND S.ORG_CODE = #{d.districtCode})
+        </foreach>
+        )
+        <if test="filter.regionCode != null">
+            AND S.ORG_MSTR_CODE = #{filter.regionCode} AND S.ORG_CODE = #{filter.districtCode}
+        </if>
+    </sql>
+
+    <select id="selectFindings" resultMap="finding">
+        SELECT CASE WHEN S.DATE_UNKNOWN_IND = 'N' THEN S.FOUND_DATE END AS foundDate,
+            S.FOUND_TIME AS foundTime, S.ORG_MSTR_CODE AS regionCode,
+            S.ORG_CODE AS districtCode, S.PLACE_NAME AS place, S.CLASS2_CODE AS classification,
+            S.MANPIK_DATE AS manpikDate, S.FIND_A_DATE AS findADate
+        FROM TGMSTR S
+        WHERE S.LIB_ID = #{library} AND S.DEL_IND = 'N'
+        <include refid="scope"/>
+        AND (
+            (S.DATE_UNKNOWN_IND = 'N' AND S.FOUND_DATE IS NOT NULL
+                <if test="filter.from != null">AND S.FOUND_DATE &gt;= #{filter.from}</if>
+                <if test="filter.to != null">AND S.FOUND_DATE &lt;= #{filter.to}</if>
+            )
+            <if test="!filter.roadOnly">
+                OR (S.MANPIK_DATE IS NOT NULL
+                    <if test="filter.from != null">AND S.MANPIK_DATE &gt;= #{filter.from}</if>
+                    <if test="filter.to != null">AND S.MANPIK_DATE &lt;= #{filter.to}</if>
+                )
+            </if>
+        )
+        <if test="filter.roadOnly">AND S.CLASS2_CODE = '노방'</if>
+        UNION ALL
+        SELECT S.FOUND_DATE, S.FOUND_TIME, S.ORG_MSTR_CODE, S.ORG_CODE, S.PLACE_NAME,
+            COALESCE(S.CLASS2_CODE, '노방'), NULL, NULL
+        FROM (
+            SELECT D.FOUND_DATE, D.FOUND_TIME, D.ORG_MSTR_CODE, D.ORG_CODE, D.PLACE_NAME, D.CLASS2_CODE,
+                ROW_NUMBER() OVER (
+                    PARTITION BY CASE
+                        WHEN D.TGT_ID IS NOT NULL THEN CONCAT('id:', D.TGT_ID)
+                        WHEN NULLIF(D.TGT_CODE, '') IS NOT NULL THEN CONCAT('code:', D.TGT_CODE)
+                        ELSE CONCAT('detail:', D.DAY_DTL_ID) END
+                    ORDER BY D.REPORT_DATE, D.DAY_DTL_ID
+                ) AS fallbackOrder
+            FROM DAYDTL D
+            WHERE D.LIB_ID = #{library} AND D.DATE_UNKNOWN_IND = 'N' AND D.FOUND_DATE IS NOT NULL
+            AND NOT EXISTS (
+                SELECT 1 FROM TGMSTR T WHERE T.LIB_ID = D.LIB_ID
+                AND ((D.TGT_ID IS NOT NULL AND T.TGT_ID = D.TGT_ID) OR
+                    (D.TGT_ID IS NULL AND NULLIF(D.TGT_CODE, '') IS NOT NULL AND T.TGT_CODE = D.TGT_CODE))
+            )
+        ) S
+        WHERE S.fallbackOrder = 1
+        <include refid="scope"/>
+        <if test="filter.from != null">AND S.FOUND_DATE &gt;= #{filter.from}</if>
+        <if test="filter.to != null">AND S.FOUND_DATE &lt;= #{filter.to}</if>
+        <if test="filter.roadOnly">AND COALESCE(S.CLASS2_CODE, '노방') = '노방'</if>
+    </select>
+
+    <select id="selectActivities" resultMap="activity">
+        SELECT S.ACT_DATE AS day, S.START_TIME AS startTime, S.END_TIME AS endTime,
+            S.ORG_MSTR_CODE AS regionCode, S.ORG_CODE AS districtCode, S.EMPL_ID AS workerId,
+            S.EMPL_CODE AS workerCode, COALESCE(NULLIF(S.EMPL_NAME, ''), P.EMPL_NAME_HAN) AS workerName,
+            P.JOB_CODE AS jobCode, S.PLACE_NAME AS place, S.SESSION_KEY AS sessionKey, S.MEMO AS memo
+        FROM ACTMSTR S LEFT JOIN PSMSTR P ON P.EMPL_ID = S.EMPL_ID AND P.USE_IND = 'Y'
+            AND P.ORG_MSTR_CODE = S.ORG_MSTR_CODE AND P.ORG_CODE = S.ORG_CODE
+        WHERE S.LIB_ID = #{library} AND S.DEL_IND = 'N' AND COALESCE(S.CLASS2_CODE, '노방') = '노방'
+        <include refid="scope"/>
+        <if test="filter.from != null">AND S.ACT_DATE &gt;= DATE_SUB(#{filter.from}, INTERVAL 1 DAY)</if>
+        <if test="filter.to != null">AND S.ACT_DATE &lt;= #{filter.to}</if>
+    </select>
+</mapper>

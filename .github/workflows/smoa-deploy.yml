@@ -1,0 +1,152 @@
+name: SMOA 빌드 및 운영 배포
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoa-build-deploy-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Spring Boot 테스트 및 패키징
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      artifact-id: ${{ steps.release.outputs.artifact-id }}
+    steps:
+      - name: 소스 체크아웃
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Java 21 설정
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: 테스트 및 통합 JAR 빌드
+        shell: bash
+        run: |
+          sed -i 's/\r$//' gradlew
+          bash ./gradlew :backend:test :backend:bootJar --no-daemon
+
+      - name: 실행 JAR 검증
+        shell: bash
+        run: |
+          mapfile -t jars < <(find backend/build/libs -maxdepth 1 -type f -name 'smoa-backend-*.jar' ! -name '*-plain.jar')
+          if (( ${#jars[@]} != 1 )); then
+            printf '실행 JAR가 정확히 한 개 있어야 합니다.\n' >&2
+            exit 1
+          fi
+
+          entries="$RUNNER_TEMP/smoa-jar-contents.txt"
+          jar tf "${jars[0]}" > "$entries"
+          for entry in \
+            META-INF/MANIFEST.MF \
+            BOOT-INF/classes/com/smoa/SmoaApplication.class \
+            BOOT-INF/classes/application-prod.yml \
+            BOOT-INF/classes/static/index.html \
+            BOOT-INF/classes/static/login.html \
+            BOOT-INF/classes/static/assets/js/shell.js \
+            BOOT-INF/classes/static/assets/design/theme.css \
+            BOOT-INF/classes/static/assets/daily/clock.js \
+            BOOT-INF/classes/static/assets/daily/daily-area-report.js
+          do
+            grep -Fx -- "$entry" "$entries" > /dev/null
+          done
+
+          mkdir -p "$RUNNER_TEMP/smoa-release"
+          cp -- "${jars[0]}" "$RUNNER_TEMP/smoa-release/smoa.jar"
+
+      - name: 배포 아티팩트 보관
+        id: release
+        if: github.repository == 'ckehf223/SMOA' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: smoa-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/smoa-release/smoa.jar
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+
+  deploy:
+    name: 데이터스케일 운영 배포
+    needs: build
+    if: github.repository == 'ckehf223/SMOA' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 10
+    steps:
+      - name: 같은 실행의 검증된 JAR 받기
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact-id }}
+          path: ${{ runner.temp }}/smoa-release
+          merge-multiple: true
+          digest-mismatch: error
+
+      - name: 현재 main 커밋인지 확인
+        id: revision
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current_sha=$(curl --fail --silent --show-error --retry 2 --max-time 15 \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            https://api.github.com/repos/ckehf223/SMOA/git/ref/heads/main | jq -er '.object.sha')
+
+          if [[ "$current_sha" == "$GITHUB_SHA" ]]; then
+            echo 'current=true' >> "$GITHUB_OUTPUT"
+          else
+            echo '새로운 main 커밋이 있어 이 빌드의 배포를 건너뜁니다.'
+            echo 'current=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 운영 서버에 JAR 전송
+        if: steps.revision.outputs.current == 'true'
+        shell: bash
+        env:
+          SMOA_DEPLOY_SSH_KEY: ${{ secrets.SMOA_DEPLOY_SSH_KEY }}
+          SMOA_DEPLOY_KNOWN_HOSTS: ${{ secrets.SMOA_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          if [[ -z "$SMOA_DEPLOY_SSH_KEY" || -z "$SMOA_DEPLOY_KNOWN_HOSTS" ]]; then
+            printf '운영 SSH 키와 known_hosts 시크릿을 등록하세요.\n' >&2
+            exit 1
+          fi
+
+          umask 077
+          ssh_dir=$(mktemp -d "$RUNNER_TEMP/smoa-ssh.XXXXXXXX")
+          trap 'rm -f -- "$ssh_dir/key" "$ssh_dir/known_hosts"; rmdir -- "$ssh_dir"' EXIT
+          printf '%s\n' "$SMOA_DEPLOY_SSH_KEY" > "$ssh_dir/key"
+          printf '%s\n' "$SMOA_DEPLOY_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          unset SMOA_DEPLOY_SSH_KEY SMOA_DEPLOY_KNOWN_HOSTS
+
+          artifact="$RUNNER_TEMP/smoa-release/smoa.jar"
+          checksum=$(sha256sum -- "$artifact" | cut -d ' ' -f 1)
+          size=$(stat -c '%s' -- "$artifact")
+          {
+            printf 'deploy %s %s %s\n' "$GITHUB_SHA" "$checksum" "$size"
+            cat -- "$artifact"
+          } | ssh -F /dev/null -T \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o PreferredAuthentications=publickey \
+            -o StrictHostKeyChecking=yes \
+            -o HostKeyAlgorithms=ssh-ed25519 \
+            -o GlobalKnownHostsFile=/dev/null \
+            -o "UserKnownHostsFile=$ssh_dir/known_hosts" \
+            -o ClearAllForwardings=yes \
+            -o ConnectTimeout=15 \
+            -o ServerAliveInterval=20 \
+            -o ServerAliveCountMax=3 \
+            -i "$ssh_dir/key" smoa-deploy@165.140.21.214

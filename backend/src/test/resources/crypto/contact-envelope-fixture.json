@@ -1,0 +1,20 @@
+{
+  "keyHex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "library": "lib-synthetic",
+  "cases": [
+    {
+      "name": "migrated",
+      "phone": "010-0000-1234",
+      "sourceId": "person-src-1",
+      "aad": "SMOA:v1:lib-synthetic:TGMSTR:person-src-1:PHONE_ENC",
+      "envelope": "{\"version\":1,\"keyVersion\":\"v1\",\"aad\":\"SMOA:v1:lib-synthetic:TGMSTR:person-src-1:PHONE_ENC\",\"iv\":\"AQIDBAUGBwgJCgsM\",\"tag\":\"m7WV+vSa8PN8ne1M4SWjsA==\",\"body\":\"J9pr5cGkwLZ8j1J1IyfI\"}"
+    },
+    {
+      "name": "web-created",
+      "phone": "+82 10 0000 5678",
+      "targetId": "42",
+      "aad": "SMOA:v1:lib-synthetic:TGMSTR:db:42:PHONE_ENC",
+      "envelope": "{\"version\":1,\"keyVersion\":\"v1\",\"aad\":\"SMOA:v1:lib-synthetic:TGMSTR:db:42:PHONE_ENC\",\"iv\":\"ZGVmZ2hpamtsbW5v\",\"tag\":\"fxgah2Cq6no9p+yGA4bDRw==\",\"body\":\"ajDmVFnYZr4OUm/Y+lBcynrg\"}"
+    }
+  ]
+}

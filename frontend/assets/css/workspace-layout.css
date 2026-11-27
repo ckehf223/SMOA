@@ -1,0 +1,240 @@
+/* 업무 화면의 제목, 조회 조건, 표가 같은 기준선과 간격을 공유한다. */
+.shell-body .workarea {
+  --workspace-inset: clamp(16px, 2.6vw, 35px);
+  --workspace-gap: var(--display-section-gap, 22px);
+  --workspace-filter-gap: 10px 12px;
+  padding-inline: var(--workspace-inset);
+}
+
+.workarea > .topbar {
+  min-height: 66px;
+  margin-bottom: var(--workspace-gap);
+}
+
+.sidenav .nav-tree > li {
+  min-inline-size: 0;
+}
+
+.sidenav .nav-tree > li > .nav-group > summary {
+  padding-inline: 10px;
+}
+
+.sidenav .nav-link-root {
+  display: flex;
+  align-items: center;
+  min-block-size: 38px;
+  padding-inline: 10px;
+  font-weight: 700;
+}
+
+.sidenav .nav-group > summary:has(~ .nav-children [aria-current="page"]) {
+  background: var(--design-nav-control);
+}
+
+.sidenav .nav-tree > li > .nav-group > .nav-children {
+  margin-inline-start: 13px;
+  padding-inline-start: 8px;
+}
+
+.sidenav .nav-subgroup > summary {
+  min-block-size: 33px;
+  padding: 6px 7px;
+  gap: 7px;
+  color: var(--design-nav-muted);
+  font-size: 12px;
+}
+
+.sidenav .nav-subgroup > summary:hover,
+.sidenav .nav-subgroup > summary:has(~ .nav-children [aria-current="page"]) {
+  color: var(--design-nav-ink);
+}
+
+.sidenav .nav-children .nav-link {
+  min-block-size: 34px;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.workarea .breadcrumb {
+  flex: 1 1 14rem;
+  min-inline-size: 0;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  overflow-wrap: anywhere;
+}
+
+.workarea .top-status {
+  justify-content: flex-end;
+  margin-inline-start: auto;
+}
+
+.workarea .program-page {
+  min-inline-size: 0;
+}
+
+.workarea .program-page > .page-title,
+.workarea .record-page-head > .page-title {
+  margin: 0;
+  font-size: clamp(21px, 2vw, 27px);
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.workarea .program-page > .page-title,
+.workarea .record-page-head {
+  margin-block-end: var(--workspace-gap);
+}
+
+.workarea .record-page-head > .actions,
+.workarea .calling-actions {
+  justify-content: flex-end;
+  margin-inline-start: auto;
+}
+
+.program-body {
+  min-inline-size: 0;
+}
+
+.program-body > .panel:not(:last-child) {
+  margin-block-end: var(--workspace-gap);
+}
+
+.program-body > form.panel.dashboard-reading-filters,
+.program-body > .panel > form.dashboard-reading-filters {
+  gap: var(--workspace-filter-gap, 10px 12px);
+  align-items: flex-end;
+}
+
+.program-body form.dashboard-reading-filters > .field {
+  flex: 1 1 9rem;
+  min-inline-size: min(8rem, 100%);
+  max-inline-size: 16rem;
+  margin: 0;
+}
+
+.program-body form.dashboard-reading-filters > .field:has(input[type="search"]) {
+  flex: 1.4 1 13rem;
+  max-inline-size: none;
+}
+
+.program-body form.dashboard-reading-filters > .field > :is(input, select) {
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.program-body form.dashboard-reading-filters > .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.program-body form.dashboard-reading-filters .report-period {
+  inline-size: min(100%, 19rem);
+}
+
+.program-body form.dashboard-reading-filters .report-date-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.program-body form.dashboard-reading-filters .report-date-pair input {
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.program-body .table-wrap {
+  max-inline-size: 100%;
+  overscroll-behavior-inline: contain;
+}
+
+.program-body > .table-wrap {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.program-body table.data {
+  font-variant-numeric: tabular-nums;
+}
+
+.program-body table.data thead th {
+  vertical-align: middle;
+}
+
+.program-body table.data :is(th, td).numeric {
+  text-align: end;
+}
+
+.program-body > .table-wrap table.data tbody > tr:last-child > td {
+  border-block-end: 0;
+}
+
+.program-body > .row:has(> .btn):not(:last-child) {
+  margin-block-end: var(--workspace-gap);
+}
+
+.program-page[data-program-id="users"] .program-body > .row:has(> .btn) {
+  justify-content: flex-end;
+}
+
+@media (min-width: 761px) {
+  .shell-body .sidebar {
+    flex-basis: 226px;
+    padding: 26px 18px 16px;
+  }
+
+  .program-body .record-list .record-table {
+    max-block-size: clamp(18rem, 57vh, 32.5rem);
+    overflow: auto;
+    scroll-padding-block-start: 3rem;
+  }
+
+  .program-body .record-table table.data thead th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 1;
+  }
+}
+
+@media (761px <= width <= 1200px) {
+  .shell-body .sidebar {
+    flex-basis: 195px;
+    padding-inline: 12px;
+  }
+
+  .shell-body .workarea {
+    --workspace-inset: 22px;
+  }
+}
+
+@media (max-width: 760px) {
+  .shell-body .workarea {
+    --workspace-inset: 12px;
+    --workspace-gap: clamp(12px, 3vw, 18px);
+    --workspace-filter-gap: 8px;
+  }
+
+  .workarea .top-status {
+    justify-content: flex-start;
+    margin-inline-start: 0;
+  }
+
+  .workarea > .topbar {
+    min-height: 62px;
+  }
+
+  .sidenav .nav-tree > li > .nav-group > summary,
+  .sidenav .nav-subgroup > summary,
+  .sidenav .nav-link {
+    min-block-size: 42px;
+  }
+
+  .workarea .record-page-head > .actions,
+  .workarea .calling-actions {
+    justify-content: flex-start;
+    margin-inline-start: 0;
+  }
+
+  .program-body form.dashboard-reading-filters > :is(.field, .report-period) {
+    max-inline-size: 100%;
+  }
+}

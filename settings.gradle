@@ -1,0 +1,11 @@
+// SMOA 루트 Gradle 프로젝트. IntelliJ 에서 이 폴더(SMOA)를 열고 Gradle 동기화를 하면 :backend 가 모듈로 잡힌다.
+// frontend/ 는 별도 빌드 없이 :backend 의 processResources 가 static 으로 포장한다.
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'smoa'
+include 'backend'

@@ -1,0 +1,343 @@
+/*
+ * 현황 화면(구역별·개인별·반별·전일자 데이터, 콜링·소셜링 통계) 공통 면.
+ * 기존 SMOA 4.0.41 styles.css의 .panel · .metric · .table-scroll 배치를 웹 테마 변수로 옮겼다.
+ * 모든 규칙은 .performance-page · .status-page 안에서만 적용된다. 색은 theme.css 변수만 쓴다.
+ */
+:is(.performance-page, .status-page) {
+  --analysis-ink: var(--ink);
+  --analysis-surface: var(--paper);
+  --analysis-row: var(--design-table-row);
+  --analysis-head: var(--design-table-head);
+  --analysis-hover: var(--design-table-hover);
+  --analysis-region-ink: var(--design-region-ink);
+  --analysis-region-tint: var(--design-region-tint);
+  --analysis-rate-ink: var(--design-rate-ink);
+  --analysis-rate-tint: var(--design-rate-tint);
+  min-width: 0;
+}
+:is(.performance-page, .status-page) > *,
+:is(.performance-page, .status-page) :is(.metrics, .charts, .calling-breakdowns, .perf-finding-breakdowns) > * { min-width: 0; }
+
+/* ---- 지표 카드 ---- */
+:is(.performance-page, .status-page) .metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 var(--display-section-gap);
+}
+:is(.performance-page, .status-page) .metric {
+  min-width: 0;
+  padding: 16px 18px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--display-panel-radius);
+  color: var(--ink);
+}
+:is(.performance-page, .status-page) .metric-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+:is(.performance-page, .status-page) .metric-value {
+  margin: 10px 0 6px;
+  font-size: clamp(21px, 2.2vw, 30px);
+  font-weight: 650;
+  line-height: 1.15;
+  color: var(--design-region-ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+:is(.performance-page, .status-page) .metric-value small {
+  margin-left: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+:is(.performance-page, .status-page) .metric-foot {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+/* ---- 패널 ---- */
+:is(.performance-page, .status-page) .panel {
+  min-width: 0;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--display-panel-radius);
+  color: var(--ink);
+  overflow: clip;
+}
+:is(.performance-page, .status-page) .panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 16px clamp(12px, 2vw, 22px) 12px;
+}
+:is(.performance-page, .status-page) .panel-head > div { min-width: 0; }
+:is(.performance-page, .status-page) .panel-head :is(h2, h3) {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+:is(.performance-page, .status-page) .panel-head p {
+  max-width: 78ch;
+  margin: 5px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+:is(.performance-page, .status-page) .panel-body {
+  padding: 4px clamp(12px, 2vw, 22px) 18px;
+}
+:is(.performance-page, .status-page) .panel-body.tiny,
+:is(.performance-page, .status-page) .tiny {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+:is(.performance-page, .status-page) .table-scroll + .panel-body.tiny { padding-block: 12px 16px; }
+:is(.performance-page, .status-page) .panel > .empty,
+:is(.performance-page, .status-page) .panel-body > .empty:only-child {
+  padding: 18px 16px 22px;
+  font-size: .9rem;
+}
+:is(.performance-page, .status-page) .muted { color: var(--muted); }
+:is(.performance-page, .status-page) .notice {
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--design-table-row);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.6;
+}
+:is(.performance-page, .status-page) .charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+:is(.performance-page, .status-page) .chart-spacing { margin-top: var(--display-section-gap); }
+
+/* ---- 표: 칸 너비를 줄이지 않고 표 영역 안에서만 스크롤 ---- */
+:is(.performance-page, .status-page) .table-scroll {
+  overflow: auto;
+  max-width: 100%;
+  overscroll-behavior-inline: contain;
+}
+:is(.performance-page, .status-page) .table-scroll:focus-visible,
+:is(.performance-page, .status-page) [role="region"][tabindex]:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: -2px;
+}
+:is(.performance-page, .status-page) table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--display-table-text);
+  font-variant-numeric: tabular-nums;
+}
+:is(.performance-page, .status-page) :is(th, td) {
+  padding: 10px 14px;
+  vertical-align: middle;
+  line-height: 1.45;
+}
+:is(.performance-page, .status-page) :is(th, td).numeric { text-align: right; white-space: nowrap; }
+:is(.performance-page, .status-page) tbody th[scope="row"] {
+  text-align: left;
+  font-weight: 650;
+  background: var(--paper);
+  font-size: inherit;
+}
+:is(.performance-page, .status-page) tbody tr:nth-child(even) > th[scope="row"] { background: var(--design-table-row); }
+:is(.performance-page, .status-page) tbody tr:hover > th[scope="row"] { background: var(--design-table-hover); }
+:is(.performance-page, .status-page) :is(thead, tfoot) :is(th, td) {
+  background: var(--design-table-head);
+  color: var(--ink);
+}
+:is(.performance-page, .status-page) tfoot :is(th, td) { font-weight: 700; border-top: 1px solid var(--border); }
+
+/* 표 안의 이름 단추(원본 .ghost) */
+#main :is(.performance-page, .status-page) button.ghost,
+#main :is(.performance-page, .status-page) button.ghost[aria-pressed] {
+  max-width: 100%;
+  min-height: 0;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--green);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+#main :is(.performance-page, .status-page) button.ghost:hover { text-decoration: underline; }
+#main :is(.performance-page, .status-page) button.ghost[aria-pressed="true"] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 700;
+}
+
+/* =====================================================================
+ * 콜링 통계 (원본 calling.css)
+ * ===================================================================== */
+.calling-stats {
+  --calling-gap: 16px;
+  --calling-inset: clamp(12px, 1.8cqi, 20px);
+  display: grid;
+  gap: var(--calling-gap);
+  min-width: 0;
+  container: calling-stats / inline-size;
+}
+.calling-stats .calling-summary.metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--calling-gap);
+  margin: 0;
+}
+.calling-summary > .metric {
+  min-height: 128px;
+  padding: 14px var(--calling-inset);
+}
+.calling-summary .metric-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  min-height: 32px;
+  line-height: 1.45;
+}
+.calling-summary .metric-value { font-size: clamp(21px, 3.5cqw, 30px); }
+.calling-time-note { margin: 0; }
+.calling-breakdowns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--calling-gap);
+  align-items: stretch;
+}
+.calling-breakdowns-simple { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.calling-stats .panel-head,
+.calling-lag-body { padding-inline: var(--calling-inset); }
+.calling-breakdown-panel .panel-head {
+  min-height: 56px;
+  padding-block: 12px;
+}
+.calling-breakdowns table { table-layout: fixed; }
+.calling-breakdowns thead .numeric { width: 18.5%; }
+.calling-breakdowns-simple thead .numeric { width: 22%; }
+.calling-breakdowns thead th {
+  height: 44px;
+  padding-block: 5px;
+  white-space: normal;
+  word-break: keep-all;
+}
+.calling-breakdowns :is(td, th) {
+  padding-inline: clamp(7px, 1.1cqi, 13px);
+  line-height: 1.35;
+}
+/* 긴 콜링자 이름·시간대는 칸 안에서 줄바꿈해 숫자 칸을 밀어내지 않는다. */
+.calling-breakdowns tbody :is(th, td):not(.numeric) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.calling-breakdown-scroll { max-height: 410px; }
+.calling-rate {
+  color: var(--green);
+  font-weight: 650;
+}
+.calling-lag-body {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 14px;
+}
+.calling-lag-body p { margin: 0; font-size: 13px; }
+.calling-lag-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.calling-lag-metrics > div {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+.calling-lag-metrics dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.calling-lag-metrics dd {
+  margin: 4px 0 0;
+  color: var(--green);
+  font-size: 18px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.calling-lag-rate {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+.calling-rate-track {
+  position: relative;
+  flex: none;
+  width: min(9vw, 100px);
+  height: 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--green) 14%, var(--paper));
+}
+.calling-rate-track i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--percent);
+  border-radius: inherit;
+  background: var(--green);
+}
+@container calling-stats (max-width: 940px) {
+  .calling-breakdowns-simple { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .calling-breakdowns-simple > :last-child { grid-column: 1 / -1; }
+}
+@container calling-stats (max-width: 780px) {
+  .calling-stats .calling-summary.metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .calling-breakdowns { grid-template-columns: minmax(0, 1fr); }
+  .calling-breakdowns-simple > :last-child { grid-column: auto; }
+}
+@container calling-stats (max-width: 370px) {
+  .calling-stats .calling-summary.metrics,
+  .calling-lag-metrics { grid-template-columns: minmax(0, 1fr); }
+  .calling-breakdowns table { min-width: 300px; }
+}
+
+/* =====================================================================
+ * 소셜링 통계 (원본 socialing.css)
+ * ===================================================================== */
+.social-stats {
+  display: grid;
+  gap: 18px;
+  container: social-stats / inline-size;
+}
+.social-stats .social-summary.metrics {
+  grid-template-columns: repeat(auto-fit, minmax(min(185px, 100%), 1fr));
+  margin: 0;
+}
+.social-summary .metric-foot { line-height: 1.5; }
+.social-panel tbody th[scope="row"] {
+  min-width: 7rem;
+  max-width: 16rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.social-panel .table-scroll { max-height: 520px; }

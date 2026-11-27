@@ -1,0 +1,45 @@
+# 에이전트 지침 (로컬 전용)
+/AGENTS.md
+/CLAUDE.md
+
+# 환경 값·비밀
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 의존성
+node_modules/
+npm-debug.log*
+
+# 로컬 실행·산출물
+*.log
+logs/
+tmp/
+.tmp/
+coverage/
+dist/
+build/
+.cache/
+data/
+*.sqlite
+*.db
+
+# 업무 파일·기존 자료 (실제 자료는 저장소에 두지 않음)
+*.xlsx
+*.xls
+*.cddshare
+
+# 편집기·OS
+/.idea/
+/staging/
+.DS_Store
+Thumbs.db
+
+# Spring Boot backend(Gradle) 로컬 산출물
+.gradle/
+backend/out/
+backend/bin/
+backend/.idea/
+backend/*.iml

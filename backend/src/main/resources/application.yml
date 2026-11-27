@@ -1,0 +1,318 @@
+# SMOA backend 공통 설정. 비밀 값은 두지 않는다(환경 변수 참조만).
+# 저장소 프로파일(local-memory | local | prod)은 반드시 하나를 명시해야 한다. 미지정이면 기동 실패.
+spring:
+  application:
+    name: smoa-backend
+  main:
+    banner-mode: off
+  jackson:
+    default-property-inclusion: non_null
+    mapper:
+      accept-case-insensitive-enums: true   # 동작 목록(read/write/export)을 소문자로 받는다
+    deserialization:
+      # 계정 수정 등 요청 필드 허용 목록: 정의되지 않은 필드가 오면 400
+      fail-on-unknown-properties: true
+  sql:
+    init:
+      mode: never   # 스키마 자동 생성·초기화 금지
+
+server:
+  address: 127.0.0.1
+  port: 8080
+  servlet:
+    session:
+      timeout: 30m          # 유휴 만료
+      tracking-modes: cookie
+      cookie:
+        name: SMOASESSION
+        http-only: true
+        secure: true        # local-memory(HTTP)에서만 false로 덮어쓴다
+        same-site: lax
+  error:
+    include-stacktrace: never
+    include-message: never
+    include-binding-errors: never
+    include-exception: false
+
+logging:
+  config: classpath:log4j2.xml
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    # MyBatis 자체 SQL 출력은 끈다. SQL 로그는 local 프로파일의 log4jdbc(jdbc.sqltiming)만 사용한다.
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+    map-underscore-to-camel-case: false
+    # 값이 null 인 파라미터 바인딩은 JDBC NULL 로 보낸다(MariaDB 드라이버 호환).
+    jdbc-type-for-null: 'NULL'
+    # SQL 원문의 앞뒤 공백·연속 빈 줄을 MyBatis 가 줄이지 않게 한다(log4jdbc 와 함께 원본 SQL 출력 확인용)
+    shrink-whitespaces-in-sql: false
+
+smoa:
+  security:
+    bcrypt-strength: 12
+    login-max-failures: 5          # 계정키+IP 기준. IP 단독 기준은 6배
+    login-window: 15m
+    login-lockout: 15m
+    login-tracker-max-entries: 10000
+    # 로그인 전에 공개할 정적 파일(GET)의 Ant 패턴. 여기에 없는 경로는 모두 거부된다.
+    # 정적 자원(HTML 껍데기·CSS·JS)만 공개한다. 사용자 자료는 모두 /api 를 거치며 /api/** 와 /pages/** 는 지정할 수 없다.
+    public-paths: ["/", "/index.html", "/login.html", "/favicon.ico", "/assets/**"]
+
+  bootstrap:
+    # DB 모드(local/prod) 최초 총관리자 초기화는 기본 비활성이다. enabled=true 와 environment(활성 프로파일과 같은 값)를 모두 명시해야 한다.
+    # USERMSTR 이 비어 있을 때만 1회 동작하며 기존 계정·명부·대상자는 절대 바꾸지 않는다. 값은 환경 변수로만 받는다.
+    enabled: ${SMOA_BOOTSTRAP_ENABLED:false}
+    environment: ${SMOA_BOOTSTRAP_ENVIRONMENT:}
+    username: ${SMOA_BOOTSTRAP_USERNAME:}
+    password: ${SMOA_BOOTSTRAP_PASSWORD:}
+  storage:
+    # 업무 자료실 ID(LIBMSTR.LIB_ID). local/prod 에서 필수이며 자동 선택하지 않는다.
+    library-id: ${SMOA_LIBRARY_ID:}
+  contact:
+    # 연락처 암호화 키 파일 경로(정확히 32바이트). 파일 내용은 로그·응답·DB 에 남기지 않는다.
+    key-file: ${SMOA_CONTACT_KEY_FILE:}
+
+  # 기본 프로그램 정의. local-memory 에서는 가상 저장소 시드, local/prod 에서는 smoa.bootstrap 이 명시적으로 켜진 최초 1회에만
+  # PGMMSTR 에 없는 항목을 채우는 목록이다. 프로그램 ID 는 불변 키이며 이름·그룹·순서·경로·동작은 총관리자 화면에서 바꾼다.
+  # module 은 ModulesConfig 에 등록된 모듈 키.
+  seed-programs:
+    - program-id: dashboard
+      name: "대시보드"
+      group: "업무현황 / 대시보드"
+      category: BUSINESS
+      actions: [read]
+      page: /pages/dashboard.html
+      module: analytics
+      sort-order: 10
+    - program-id: regionData
+      name: "구역별 데이터"
+      group: "데이터현황 / 실적"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/regionData.html
+      module: analytics
+      sort-order: 20
+    - program-id: memberData
+      name: "개인별 데이터"
+      group: "데이터현황 / 실적"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/memberData.html
+      module: analytics
+      sort-order: 30
+    - program-id: classData
+      name: "반별 데이터"
+      group: "데이터현황 / 실적"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/classData.html
+      module: analytics
+      sort-order: 40
+    - program-id: findingStats
+      name: "찾기·주관자 통계"
+      group: "데이터현황 / 통계·진단"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/findingStats.html
+      module: analytics
+      sort-order: 50
+    - program-id: diagnostics
+      name: "통계 진단"
+      group: "데이터현황 / 통계·진단"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/diagnostics.html
+      module: analytics
+      sort-order: 60
+    - program-id: stagePerformance
+      name: "단계 강약 분석"
+      group: "데이터현황 / 통계·진단"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/stagePerformance.html
+      module: analytics
+      sort-order: 70
+    - program-id: socialingManage
+      name: "소셜링 관리"
+      group: "소셜링 / 유입 관리"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/socialingManage.html
+      module: socialing
+      sort-order: 80
+    - program-id: socialingStats
+      name: "소셜링 데이터현황"
+      group: "소셜링 / 데이터현황"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/socialingStats.html
+      module: analytics
+      sort-order: 90
+    - program-id: callingManage
+      name: "콜링 관리"
+      group: "콜링 / 콜링 업무"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/callingManage.html
+      module: calling
+      sort-order: 100
+    - program-id: callingStats
+      name: "콜링 데이터 현황"
+      group: "콜링 / 데이터현황"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/callingStats.html
+      module: analytics
+      sort-order: 110
+    - program-id: callingSheet
+      name: "콜링시트"
+      group: "콜링 / 콜링 업무"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/callingSheet.html
+      module: callingSheet
+      sort-order: 115
+    - program-id: people
+      name: "대상자 관리"
+      group: "기록관리 / 대상자"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/people.html
+      module: records
+      sort-order: 120
+    - program-id: activities
+      name: "활동 기록"
+      group: "기록관리 / 활동"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/activities.html
+      module: records
+      sort-order: 130
+    - program-id: regionalActivity
+      name: "지역활동기록"
+      group: "기록관리 / 활동"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/regionalActivity.html
+      module: records
+      sort-order: 140
+    - program-id: afterAll
+      name: "전체 사후"
+      group: "기록관리 / 사후"
+      category: BUSINESS
+      actions: [read]
+      page: /pages/afterAll.html
+      module: afterReport
+      sort-order: 141
+    - program-id: afterOrganizer
+      name: "주관자 사후"
+      group: "기록관리 / 사후"
+      category: BUSINESS
+      actions: [read, write]
+      page: /pages/afterOrganizer.html
+      module: afterReport
+      sort-order: 142
+    - program-id: afterParticipant
+      name: "활동자 사후"
+      group: "기록관리 / 사후"
+      category: BUSINESS
+      actions: [read, write]
+      page: /pages/afterParticipant.html
+      module: afterReport
+      sort-order: 143
+    - program-id: stages
+      name: "단계 이동 분석"
+      group: "기록관리 / 대상자"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/stages.html
+      module: records
+      sort-order: 150
+    - program-id: history
+      name: "변경 이력"
+      group: "기록관리 / 이력"
+      category: BUSINESS
+      actions: [read, export]
+      page: /pages/history.html
+      module: records
+      active: false
+      sort-order: 160
+    - program-id: reports
+      name: "엑셀 · 자료 가져오기"
+      group: "자료작업 / 엑셀"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/reports.html
+      module: imports
+      active: false
+      sort-order: 170
+    - program-id: daily
+      name: "일보 변환 · 분석"
+      group: "자료작업 / 일보"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/daily.html
+      module: imports
+      active: false
+      sort-order: 180
+    - program-id: goals
+      name: "구역·반 기간 목표"
+      group: "업무현황 / 목표"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/goals.html
+      module: goals
+      sort-order: 190
+    - program-id: organization
+      name: "조직 · 구성원 관리"
+      group: "관리 / 기준정보"
+      category: BUSINESS
+      actions: [read, write, export]
+      page: /pages/organization.html
+      module: organization
+      sort-order: 200
+    - program-id: codes
+      name: "공통코드 관리"
+      group: "관리 / 기준정보"
+      category: ADMIN
+      actions: [read, write]
+      page: /pages/codes.html
+      module: organization
+      sort-order: 210
+    - program-id: settings
+      name: "설정"
+      group: "관리 / 시스템"
+      category: ADMIN
+      actions: [read, write]
+      page: /pages/settings.html
+      module: organization
+      active: false
+      sort-order: 220
+    - program-id: users
+      name: "사용자 관리"
+      group: "관리 / 계정·권한"
+      category: ADMIN
+      actions: [read, write]
+      page: /pages/users.html
+      module: identity
+      sort-order: 230
+      super-admin-only: true
+    - program-id: permissions
+      name: "권한 패키지 관리"
+      group: "관리 / 계정·권한"
+      category: ADMIN
+      actions: [read, write]
+      page: /pages/permissions.html
+      module: identity
+      sort-order: 240
+      super-admin-only: true
+    - program-id: programs
+      name: "메뉴 관리"
+      group: "관리 / 시스템"
+      category: ADMIN
+      actions: [read, write]
+      page: /pages/programs.html
+      module: identity
+      sort-order: 250
+      super-admin-only: true

@@ -1,0 +1,70 @@
+-- 콜링시트 기능을 위한 새 테이블. 실행 전 DB 백업과 001-web-persistence.sql 적용을 확인한다.
+-- 기존 콜링 기록 및 노션 업무 행은 변경하거나 이관하지 않는다.
+CREATE TABLE IF NOT EXISTS CALLSHEET (
+    SHEET_ID bigint unsigned NOT NULL AUTO_INCREMENT,
+    LIB_ID varchar(60) NOT NULL,
+    TGT_ID bigint unsigned NULL,
+    CALL_STATUS varchar(60) NOT NULL DEFAULT '',
+    FOUND_DATE date NULL,
+    CALL_RESULT varchar(100) NOT NULL DEFAULT '',
+    TARGET_NAME varchar(100) NOT NULL,
+    INTRO_EMPL_ID varchar(60) NULL,
+    INTRO_NAME varchar(100) NOT NULL DEFAULT '',
+    ORG_MSTR_CODE varchar(60) NULL,
+    ORG_CODE varchar(60) NULL,
+    SEX_CODE varchar(20) NOT NULL DEFAULT '',
+    AGE_TEXT varchar(60) NOT NULL DEFAULT '',
+    RESIDENCE varchar(200) NOT NULL DEFAULT '',
+    PREFERRED_PLACE varchar(200) NOT NULL DEFAULT '',
+    NOTES text NOT NULL,
+    CONSULT_TOPIC varchar(200) NOT NULL DEFAULT '',
+    MANPIK_CONFIRMED_AT datetime NULL,
+    MANPIK_INFO text NOT NULL,
+    ASSIGNED_USER_ID varchar(50) NULL,
+    ASSIGNED_USER_NAME varchar(100) NOT NULL DEFAULT '',
+    PHONE_ENC text NULL,
+    PHONE_LAST4 char(4) NULL,
+    PHONE_KEY_VER varchar(20) NULL,
+    SOURCE_ENC longtext NULL,
+    ROW_VERSION bigint unsigned NOT NULL DEFAULT 1,
+    DEL_IND char(1) NOT NULL DEFAULT 'N',
+    SYS_RUSR_ID varchar(50) NOT NULL,
+    SYS_RUSR_IP varchar(50) NOT NULL,
+    SYS_RUSR_DTTM datetime NOT NULL,
+    SYS_MUSR_ID varchar(50) NOT NULL,
+    SYS_MUSR_IP varchar(50) NOT NULL,
+    SYS_MUSR_DTTM datetime NOT NULL,
+    PRIMARY KEY (SHEET_ID),
+    KEY IX_CALLSHEET_FOUND (LIB_ID, DEL_IND, FOUND_DATE, SHEET_ID),
+    KEY IX_CALLSHEET_SCOPE (LIB_ID, DEL_IND, ORG_MSTR_CODE, ORG_CODE, FOUND_DATE),
+    KEY IX_CALLSHEET_TARGET (LIB_ID, TGT_ID),
+    KEY IX_CALLSHEET_ASSIGNEE (LIB_ID, DEL_IND, ASSIGNED_USER_ID),
+    CONSTRAINT CK_CALLSHEET_DEL CHECK (DEL_IND IN ('Y','N')),
+    CONSTRAINT CK_CALLSHEET_DISTRICT CHECK ((ORG_MSTR_CODE IS NULL) = (ORG_CODE IS NULL))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+COMMENT='콜링시트 행. 기준 대상자 연결은 선택.';
+
+CREATE TABLE IF NOT EXISTS CALLSHEETROUND (
+    LIB_ID varchar(60) NOT NULL,
+    SHEET_ID bigint unsigned NOT NULL,
+    ROUND_CODE varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    ROUND_LABEL varchar(60) NOT NULL,
+    CALLER_USER_ID varchar(50) NULL,
+    CALLER_NAME varchar(100) NOT NULL DEFAULT '',
+    SYS_RUSR_ID varchar(50) NOT NULL,
+    SYS_RUSR_IP varchar(50) NOT NULL,
+    SYS_RUSR_DTTM datetime NOT NULL,
+    SYS_MUSR_ID varchar(50) NOT NULL,
+    SYS_MUSR_IP varchar(50) NOT NULL,
+    SYS_MUSR_DTTM datetime NOT NULL,
+    PRIMARY KEY (LIB_ID, SHEET_ID, ROUND_CODE)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+COMMENT='콜링시트 회차 담당. 기존 콜링 시도 기록과 별도.';
+
+-- 기존 관리자 설정을 유지한다. 프로그램 추가만으로 일반 계정에 권한이 생기지 않는다.
+INSERT INTO PGMMSTR
+    (PGM_ID, PGM_NAME_HAN, PGM_URL, GROUP_NAME, MODULE_ID, CATEGORY_CODE, PGM_SORT_NO,
+     SUPER_ADMIN_IND, READ_USE_IND, WRITE_USE_IND, EXPORT_USE_IND, USE_IND, SYS_RUSR_ID, SYS_MUSR_ID)
+SELECT 'callingSheet', '콜링시트', '/pages/callingSheet.html', '콜링', 'callingSheet', 'BUSINESS', 115,
+       'N', 'Y', 'Y', 'Y', 'Y', 'SYSTEM', 'SYSTEM'
+WHERE NOT EXISTS (SELECT 1 FROM PGMMSTR WHERE PGM_ID = 'callingSheet');

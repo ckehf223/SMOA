@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.reference.persistence.ReferenceMapper">
+
+    <!-- 읽기 전용: ORGMSTR(지역, PK ORG_MSTR_CODE), ORGDTL(구역, PK(ORG_MSTR_CODE, ORG_CODE)). SELECT 만 있다. -->
+    <resultMap id="regionRow" type="com.smoa.reference.persistence.RegionRow">
+        <id property="regionCode" column="regionCode"/>
+        <result property="name" column="name"/>
+        <result property="active" column="active"/>
+    </resultMap>
+
+    <resultMap id="districtRow" type="com.smoa.reference.persistence.DistrictRow">
+        <id property="regionCode" column="regionCode"/>
+        <id property="districtCode" column="districtCode"/>
+        <result property="name" column="name"/>
+        <result property="active" column="active"/>
+    </resultMap>
+
+    <!-- USE_IND 는 실제 서버 원형이 nullable 이므로 NULL 은 비활성(N)으로 본다. -->
+    <select id="selectRegions" resultMap="regionRow">
+        SELECT R.ORG_MSTR_CODE AS regionCode,
+               R.ORG_MSTR_NAME_HAN AS name,
+               (IFNULL(R.USE_IND, 'N') = 'Y') AS active
+          FROM ORGMSTR R
+         ORDER BY R.SORT_NO, R.ORG_MSTR_CODE
+    </select>
+
+    <select id="selectDistricts" resultMap="districtRow">
+        SELECT D.ORG_MSTR_CODE AS regionCode,
+               D.ORG_CODE AS districtCode,
+               D.ORG_NAME_HAN AS name,
+               (IFNULL(D.USE_IND, 'N') = 'Y') AS active
+          FROM ORGDTL D
+         ORDER BY D.ORG_MSTR_CODE, D.SORT_NO, D.ORG_CODE
+    </select>
+
+    <!-- 지역과 구역이 모두 활성인 구역만(비활성 지역 아래 구역은 제외). -->
+    <select id="selectActiveDistricts" resultMap="districtRow">
+        SELECT D.ORG_MSTR_CODE AS regionCode,
+               D.ORG_CODE AS districtCode,
+               D.ORG_NAME_HAN AS name,
+               1 AS active
+          FROM ORGDTL D
+          JOIN ORGMSTR R ON R.ORG_MSTR_CODE = D.ORG_MSTR_CODE
+         WHERE IFNULL(D.USE_IND, 'N') = 'Y'
+           AND IFNULL(R.USE_IND, 'N') = 'Y'
+         ORDER BY D.ORG_MSTR_CODE, D.SORT_NO, D.ORG_CODE
+    </select>
+
+</mapper>

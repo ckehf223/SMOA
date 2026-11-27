@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.module.mapper.CallingMapper">
+    <sql id="scope">
+        <choose>
+            <when test="all">1 = 1</when>
+            <otherwise>
+                (1 = 0
+                <if test="unassigned">OR ${a}.ORG_MSTR_CODE IS NULL OR ${a}.ORG_CODE IS NULL</if>
+                <foreach collection="districts" item="d">
+                    OR (${a}.ORG_MSTR_CODE = #{d.regionCode} AND ${a}.ORG_CODE = #{d.districtCode})
+                </foreach>)
+            </otherwise>
+        </choose>
+    </sql>
+
+    <!-- A moved target contributes its current profile only while that target is in scope.
+         The recorded region and district remain authoritative for calling-row access. -->
+    <sql id="recordColumns">
+        CAST(c.CALL_ID AS CHAR) AS id,
+        (<include refid="revision"/>) AS rowVersion,
+        CAST(c.TGT_ID AS CHAR) AS personId,
+        COALESCE(t.TGT_NAME_HAN, c.TGT_NAME_HAN) AS personName,
+        CASE WHEN t.TGT_ID IS NULL THEN c.TGT_CODE ELSE t.TGT_CODE END AS personCode,
+        CASE WHEN t.TGT_ID IS NULL THEN c.INTRO_NAME
+             ELSE COALESCE(NULLIF(e.EMPL_NAME_HAN, ''), NULLIF(t.INTRO_NAME, ''), t.WORKER_NAME) END AS introducer,
+        c.ORG_MSTR_CODE AS regionCode, c.ORG_CODE AS districtCode, c.BAN_CODE AS className,
+        CASE WHEN t.TGT_ID IS NULL THEN c.FOUND_DATE
+             WHEN t.DATE_UNKNOWN_IND = 'Y' THEN NULL ELSE t.FOUND_DATE END AS foundDate,
+        (c.TGT_ID IS NOT NULL AND t.TGT_ID IS NULL) AS personDeleted,
+        c.CALL_DATE AS callDate, TIME_FORMAT(c.CALL_TIME, '%H:%i:%s') AS callTime,
+        c.CALLER_NAME AS caller, c.ROUND_NO AS roundNo, c.ROUND_NAME AS roundName, c.RESULT_CODE AS result,
+        c.ORIGINAL_RESULT AS originalResult, c.REPORTED_RESULT AS reportedResult, c.NOTES AS notes
+    </sql>
+
+    <sql id="revision">
+        COALESCE((SELECT MAX(h.SEQ_NO) FROM CHGLOG h
+            WHERE h.LIB_ID = c.LIB_ID AND h.TARGET_KIND = 'CALLMSTR'
+              AND h.TARGET_ID = CAST(c.CALL_ID AS CHAR)), 0)
+    </sql>
+
+    <sql id="joins">
+        LEFT JOIN TGMSTR t ON t.LIB_ID = c.LIB_ID AND t.TGT_ID = c.TGT_ID AND t.DEL_IND = 'N'
+          AND (<include refid="scope"><property name="a" value="t"/></include>)
+        LEFT JOIN PSMSTR e ON e.EMPL_ID = t.EMPL_ID
+          AND (<include refid="scope"><property name="a" value="e"/></include>)
+    </sql>
+
+    <sql id="whereScoped">
+        c.LIB_ID = #{libId}
+        AND (<include refid="scope"><property name="a" value="c"/></include>)
+    </sql>
+
+    <select id="selectCallingRecords" resultType="map" fetchSize="200">
+        SELECT <include refid="recordColumns"/>
+        FROM CALLMSTR c <include refid="joins"/>
+        WHERE <include refid="whereScoped"/>
+        <if test="from != null">AND c.CALL_DATE &gt;= #{from}</if>
+        <if test="to != null">AND c.CALL_DATE &lt;= #{to}</if>
+        <if test="region != null">AND c.ORG_MSTR_CODE = #{region}</if>
+        <if test="district != null">AND c.ORG_CODE = #{district}</if>
+        ORDER BY c.CALL_DATE DESC, c.CALL_TIME DESC, c.CALL_ID ASC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectCallingOptions" resultType="map">
+        SELECT c.CALLER_NAME AS caller, c.ROUND_NO AS roundNo, c.ROUND_NAME AS roundName
+        FROM CALLMSTR c
+        WHERE <include refid="whereScoped"/>
+        GROUP BY BINARY c.CALLER_NAME, c.CALLER_NAME, c.ROUND_NO, BINARY c.ROUND_NAME, c.ROUND_NAME
+        ORDER BY MIN(c.CALL_ID)
+    </select>
+
+    <select id="selectCallingWeekStart" resultType="string">
+        SELECT CONFIG_VALUE FROM SYSCFG
+        WHERE LIB_ID = #{libId} AND CONFIG_CODE IN ('WEEK_START', 'weekStart')
+        ORDER BY CONFIG_CODE = 'WEEK_START' DESC LIMIT 1
+    </select>
+
+    <select id="selectCallingRecord" resultType="map">
+        SELECT <include refid="recordColumns"/>
+        FROM CALLMSTR c <include refid="joins"/>
+        WHERE <include refid="whereScoped"/> AND c.CALL_ID = CAST(#{id} AS UNSIGNED)
+    </select>
+
+    <insert id="insertCallingRecord" useGeneratedKeys="true" keyProperty="id" keyColumn="CALL_ID">
+        INSERT INTO CALLMSTR
+        (LIB_ID, TGT_ID, TGT_NAME_HAN, TGT_CODE, INTRO_NAME, ORG_MSTR_CODE, ORG_CODE, BAN_CODE,
+         FOUND_DATE, CALL_DATE, CALL_TIME, CALLER_NAME, ROUND_NO, ROUND_NAME, RESULT_CODE,
+         ORIGINAL_RESULT, REPORTED_RESULT, NOTES, ATTEMPT_KEY_HASH,
+         SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES
+        (#{libId}, #{personId}, #{personName}, #{personCode}, #{introducer}, #{regionCode}, #{districtCode}, #{className},
+         #{foundDate}, #{date}, #{time}, #{caller}, #{roundNo}, #{roundName}, #{result},
+         #{originalResult}, #{reportedResult}, #{notes}, #{attemptHash},
+         #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+    <update id="updateCallingRecord">
+        UPDATE CALLMSTR c
+        SET
+        <if test="replaceSubject">
+            c.TGT_ID = #{personId}, c.TGT_NAME_HAN = #{personName}, c.TGT_CODE = #{personCode},
+            c.INTRO_NAME = #{introducer}, c.ORG_MSTR_CODE = #{regionCode}, c.ORG_CODE = #{districtCode},
+            c.BAN_CODE = #{className}, c.FOUND_DATE = #{foundDate},
+        </if>
+        c.CALL_DATE = #{date}, c.CALL_TIME = #{time}, c.CALLER_NAME = #{caller},
+        c.ROUND_NO = #{roundNo}, c.ROUND_NAME = #{roundName}, c.RESULT_CODE = #{result},
+        c.ORIGINAL_RESULT = #{originalResult}, c.REPORTED_RESULT = #{reportedResult}, c.NOTES = #{notes},
+        c.ATTEMPT_KEY_HASH = #{attemptHash},
+        c.SYS_MUSR_ID = #{sysUserId}, c.SYS_MUSR_IP = #{sysIp}, c.SYS_MUSR_DTTM = #{sysAt}
+        WHERE <include refid="whereScoped"/> AND c.CALL_ID = CAST(#{id} AS UNSIGNED)
+          AND (<include refid="revision"/>) = #{expectedVersion}
+    </update>
+
+    <delete id="deleteCallingRecord">
+        DELETE c FROM CALLMSTR c
+        WHERE <include refid="whereScoped"/> AND c.CALL_ID = CAST(#{id} AS UNSIGNED)
+          AND (<include refid="revision"/>) = #{expectedVersion}
+    </delete>
+</mapper>

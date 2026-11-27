@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.program.persistence.ProgramMapper">
+
+    <resultMap id="programRow" type="com.smoa.program.persistence.ProgramRow">
+        <id property="programId" column="programId"/>
+        <result property="name" column="name"/>
+        <result property="groupName" column="groupName"/>
+        <result property="category" column="category"/>
+        <result property="pagePath" column="pagePath"/>
+        <result property="moduleId" column="moduleId"/>
+        <result property="readUse" column="readUse"/>
+        <result property="writeUse" column="writeUse"/>
+        <result property="exportUse" column="exportUse"/>
+        <result property="superAdminOnly" column="superAdminOnly"/>
+        <result property="active" column="active"/>
+        <result property="sortOrder" column="sortOrder"/>
+    </resultMap>
+
+    <sql id="programColumns">
+        P.PGM_ID AS programId,
+        P.PGM_NAME_HAN AS name,
+        P.GROUP_NAME AS groupName,
+        P.CATEGORY_CODE AS category,
+        P.PGM_URL AS pagePath,
+        P.MODULE_ID AS moduleId,
+        (P.READ_USE_IND = 'Y') AS readUse,
+        (P.WRITE_USE_IND = 'Y') AS writeUse,
+        (P.EXPORT_USE_IND = 'Y') AS exportUse,
+        (P.SUPER_ADMIN_IND = 'Y') AS superAdminOnly,
+        (P.USE_IND = 'Y') AS active,
+        P.PGM_SORT_NO AS sortOrder
+    </sql>
+
+    <select id="selectProgramById" resultMap="programRow">
+        SELECT <include refid="programColumns"/>
+          FROM PGMMSTR P
+         WHERE P.PGM_ID = #{programId}
+    </select>
+
+    <select id="selectProgramByPagePath" resultMap="programRow">
+        SELECT <include refid="programColumns"/>
+          FROM PGMMSTR P
+         WHERE P.PGM_URL = #{pagePath}
+         ORDER BY P.PGM_ID
+         LIMIT 1
+    </select>
+
+    <select id="selectAllPrograms" resultMap="programRow">
+        SELECT <include refid="programColumns"/>
+          FROM PGMMSTR P
+         ORDER BY P.PGM_SORT_NO, P.PGM_ID
+    </select>
+
+    <insert id="insertProgram">
+        INSERT INTO PGMMSTR
+               (PGM_ID, PGM_NAME_HAN, PGM_URL, GROUP_NAME, MODULE_ID, CATEGORY_CODE, PGM_SORT_NO,
+                SUPER_ADMIN_IND, READ_USE_IND, WRITE_USE_IND, EXPORT_USE_IND, USE_IND,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES (#{programId}, #{name}, #{pagePath}, #{groupName}, #{moduleId}, #{category}, #{sortOrder},
+                IF(#{superAdminOnly}, 'Y', 'N'), IF(#{readUse}, 'Y', 'N'), IF(#{writeUse}, 'Y', 'N'),
+                IF(#{exportUse}, 'Y', 'N'), IF(#{active}, 'Y', 'N'),
+                #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+    <update id="updateProgram">
+        UPDATE PGMMSTR
+           SET PGM_NAME_HAN = #{name},
+               PGM_URL = #{pagePath},
+               GROUP_NAME = #{groupName},
+               MODULE_ID = #{moduleId},
+               CATEGORY_CODE = #{category},
+               PGM_SORT_NO = #{sortOrder},
+               SUPER_ADMIN_IND = IF(#{superAdminOnly}, 'Y', 'N'),
+               READ_USE_IND = IF(#{readUse}, 'Y', 'N'),
+               WRITE_USE_IND = IF(#{writeUse}, 'Y', 'N'),
+               EXPORT_USE_IND = IF(#{exportUse}, 'Y', 'N'),
+               USE_IND = IF(#{active}, 'Y', 'N'),
+               SYS_MUSR_ID = #{sysUserId},
+               SYS_MUSR_IP = #{sysIp},
+               SYS_MUSR_DTTM = #{sysAt}
+         WHERE PGM_ID = #{programId}
+    </update>
+
+</mapper>

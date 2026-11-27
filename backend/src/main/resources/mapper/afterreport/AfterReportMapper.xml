@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.afterreport.AfterReportMapper">
+    <sql id="columns">
+        REPORT_ID AS reportId, ORG_MSTR_CODE AS regionCode, ORG_CODE AS districtCode,
+        DATE_FORMAT(ACTIVITY_DATE, '%Y-%m-%d') AS reportDate, SLOT_CODE AS slotCode,
+        REPORT_ROLE AS reportRole, REPORT_TOKEN AS token, REPORT_ENC AS payload,
+        DATE_FORMAT(SYS_MUSR_DTTM, '%Y-%m-%dT%H:%i:%s.%fZ') AS updatedAt
+    </sql>
+
+    <sql id="scope">
+        WHERE LIB_ID = #{libraryId}
+        <choose>
+            <when test="filter.districts != null and !filter.districts.isEmpty()">
+                AND (ORG_MSTR_CODE, ORG_CODE) IN
+                <foreach collection="filter.districts" item="district" open="(" separator="," close=")">
+                    (#{district.regionCode}, #{district.districtCode})
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+        <if test="filter.from != null">AND ACTIVITY_DATE &gt;= #{filter.from}</if>
+        <if test="filter.to != null">AND ACTIVITY_DATE &lt;= #{filter.to}</if>
+        <if test="filter.role != null">AND REPORT_ROLE = #{filter.role}</if>
+    </sql>
+
+    <select id="find" resultType="map">
+        SELECT <include refid="columns"/>
+        FROM AFTRPT <include refid="scope"/>
+        ORDER BY ACTIVITY_DATE DESC, SLOT_CODE, REPORT_ROLE, REPORT_ID DESC
+        LIMIT #{filter.size} OFFSET #{filter.offset}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM AFTRPT <include refid="scope"/>
+    </select>
+
+    <select id="scan" resultType="map" fetchSize="200" resultSetType="FORWARD_ONLY" useCache="false">
+        SELECT <include refid="columns"/> FROM AFTRPT <include refid="scope"/>
+    </select>
+
+    <sql id="writeColumns">
+        LIB_ID, ORG_MSTR_CODE, ORG_CODE, ACTIVITY_DATE, SLOT_CODE, REPORT_ROLE,
+        REPORT_TOKEN, REPORT_ENC, SYS_RUSR_ID, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_DTTM
+    </sql>
+
+    <insert id="insertParticipant" useGeneratedKeys="true" keyProperty="id" keyColumn="REPORT_ID">
+        INSERT INTO AFTRPT (<include refid="writeColumns"/>)
+        VALUES (#{libraryId}, #{regionCode}, #{districtCode}, #{date}, #{slot}, 'PARTICIPANT',
+            #{token}, #{payload}, #{accountId}, UTC_TIMESTAMP(6), #{accountId}, UTC_TIMESTAMP(6))
+    </insert>
+
+    <insert id="upsertOrganizer">
+        INSERT INTO AFTRPT (<include refid="writeColumns"/>)
+        VALUES (#{libraryId}, #{regionCode}, #{districtCode}, #{date}, #{slot}, 'ORGANIZER',
+            #{token}, #{payload}, #{accountId}, UTC_TIMESTAMP(6), #{accountId}, UTC_TIMESTAMP(6))
+        ON DUPLICATE KEY UPDATE REPORT_TOKEN = VALUES(REPORT_TOKEN), REPORT_ENC = VALUES(REPORT_ENC),
+            SYS_MUSR_ID = VALUES(SYS_MUSR_ID), SYS_MUSR_DTTM = VALUES(SYS_MUSR_DTTM)
+    </insert>
+
+    <sql id="exactKey">
+        WHERE LIB_ID = #{libraryId} AND ORG_MSTR_CODE = #{key.district.regionCode}
+            AND ORG_CODE = #{key.district.districtCode} AND ACTIVITY_DATE = #{key.date}
+            AND SLOT_CODE = #{key.slot}
+    </sql>
+
+    <select id="findOrganizer" resultType="map">
+        SELECT <include refid="columns"/> FROM AFTRPT
+        <include refid="exactKey"/> AND ORGANIZER_ONCE = 1
+    </select>
+
+    <select id="findParticipant" resultType="map">
+        SELECT <include refid="columns"/> FROM AFTRPT
+        <include refid="exactKey"/> AND REPORT_ID = #{id} AND REPORT_ROLE = 'PARTICIPANT'
+    </select>
+</mapper>

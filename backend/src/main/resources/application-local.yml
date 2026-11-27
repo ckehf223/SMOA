@@ -1,0 +1,31 @@
+# 로컬 개발 + 연결된 MariaDB. SQL 로그는 log4jdbc(jdbc.sqltiming)로 출력한다.
+# 접속 정보는 모두 환경 변수로만 받는다. 값이 없으면 기동 시 어떤 변수가 없는지 오류가 난다.
+spring:
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mariadb://${SMOA_DB_HOST}:${SMOA_DB_PORT}/${SMOA_DB_NAME}
+    username: ${SMOA_DB_USER}
+    password: ${SMOA_DB_PASSWORD}
+    hikari:
+      pool-name: smoa-local
+      maximum-pool-size: 5
+      minimum-idle: 1
+
+# 로컬 개발: 앱은 127.0.0.1 에만 바인딩하고 HTTP 로 접속하므로 세션 쿠키 Secure 를 명시적으로 끈다.
+# 운영(prod)은 application-prod.yml 의 secure: true 를 그대로 쓴다. 이 값을 prod 로 옮기지 않는다.
+server:
+  address: 127.0.0.1
+  servlet:
+    session:
+      cookie:
+        secure: false
+
+logging:
+  level:
+    jdbc.sqlonly: 'OFF'
+    jdbc.sqltiming: DEBUG
+    jdbc.audit: 'OFF'
+    jdbc.resultset: 'OFF'
+    jdbc.resultsettable: 'OFF'
+    jdbc.connection: 'OFF'
+    com.zaxxer.hikari.HikariDataSource: ERROR

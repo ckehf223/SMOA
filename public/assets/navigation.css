@@ -1,0 +1,58 @@
+/*
+ * 왼쪽 메뉴 트리와 메뉴 관리 대화상자. 색은 theme.css 변수(--design-nav-*, --paper, --ink 등)만 읽는다.
+ * app.css 뒤에 불러오며(navigation.js가 연결), 메뉴 트리에 속한 요소만 다룬다.
+ */
+.sidenav .nav-tree-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; padding: 0 4px 0 12px; }
+.sidenav .nav-tree-title { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .06em; color: var(--design-nav-muted); }
+.sidenav .nav-manage { padding: 4px 9px; font-size: 12px; background: var(--design-nav-control); color: var(--design-nav-ink); border: 1px solid var(--design-nav-line); border-radius: 5px; cursor: pointer; }
+.sidenav .nav-manage:hover { background: var(--design-nav-active); }
+
+.sidenav .nav-tree,
+.sidenav .nav-children { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.sidenav .nav-children { padding-inline-start: 12px; margin-top: 3px; border-inline-start: 1px solid var(--design-nav-line); margin-inline-start: 14px; }
+.sidenav .nav-empty { margin: 0; padding: 8px 12px; font-size: 12px; line-height: 1.5; color: var(--design-nav-muted); }
+
+.sidenav .nav-group > summary { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 5px; font-size: 13px; font-weight: 700; color: var(--design-nav-ink); cursor: pointer; list-style: none; overflow-wrap: anywhere; }
+.sidenav .nav-group > summary::-webkit-details-marker { display: none; }
+.sidenav .nav-group > summary:hover { background: var(--design-nav-control); }
+.sidenav .nav-arrow { flex: none; width: 0; height: 0; border-block: 4px solid transparent; border-inline-start: 6px solid currentColor; transition: transform .12s; }
+.sidenav .nav-group[open] > summary > .nav-arrow { transform: rotate(90deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .sidenav .nav-arrow { transition: none; }
+}
+
+/* ---------- 메뉴 관리 대화상자 ---------- */
+.menu-manager { width: min(760px, calc(100% - 24px)); max-height: calc(100vh - 32px); padding: 20px; border: 1px solid var(--border); border-radius: 10px; background: var(--paper); color: var(--ink); overflow-y: auto; }
+.menu-manager::backdrop { background: rgba(0, 0, 0, .45); }
+.menu-manager h2 { margin: 0 0 6px; font-size: 1.2rem; }
+.menu-manager .note { margin: 0 0 12px; color: var(--muted); font-size: .9rem; }
+.menu-manager-message { min-height: 1.4em; margin: 0 0 6px; font-size: .9rem; color: var(--ink); }
+.menu-manager-message.error { color: var(--danger, var(--ink)); font-weight: 700; }
+.menu-manager-message:empty { min-height: 0; margin: 0; }
+.menu-manager-tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.menu-manager-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.menu-manager-row { display: flex; flex-wrap: wrap; align-items: end; gap: 8px 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; }
+.menu-manager-row.is-group { background: color-mix(in srgb, var(--ink) 6%, var(--paper)); }
+.menu-manager-row[data-depth="1"] { margin-inline-start: 18px; }
+.menu-manager-row[data-depth="2"] { margin-inline-start: 36px; }
+.menu-manager-row[data-depth="3"] { margin-inline-start: 54px; }
+.menu-manager-row[data-depth="4"] { margin-inline-start: 72px; }
+.menu-kind { flex: none; align-self: center; min-width: 2.6em; font-size: .8rem; font-weight: 700; color: var(--muted); }
+.menu-field { display: grid; gap: 2px; flex: 1 1 150px; min-width: 0; font-size: .8rem; color: var(--muted); }
+.menu-field input,
+.menu-field select { width: 100%; min-width: 0; }
+.menu-check { display: flex; align-items: center; gap: 6px; align-self: center; font-size: .9rem; white-space: nowrap; }
+.menu-row-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-inline-start: auto; }
+.menu-manager .buttons { display: flex; justify-content: flex-end; margin-top: 14px; }
+
+/* 좁은 화면: 메뉴는 위쪽에 세로로 펼치되 너무 길어지지 않게 안에서 스크롤한다. */
+@media (max-width: 760px) {
+  .sidenav:has(.nav-tree-heading) { max-height: 45vh; overflow-y: auto; }
+  .sidenav .nav-tree,
+  .sidenav .nav-children { display: grid; }
+  .sidenav .nav-tree a { white-space: normal; }
+  .menu-manager { padding: 14px; }
+  .menu-manager-row[data-depth] { margin-inline-start: 0; }
+  .menu-row-actions { margin-inline-start: 0; }
+}

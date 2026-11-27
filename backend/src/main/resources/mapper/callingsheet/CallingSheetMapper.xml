@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.callingsheet.persistence.CallingSheetMapper">
+    <sql id="columns">
+        S.SHEET_ID AS id,
+        S.TGT_ID AS targetId, S.CALL_STATUS AS callStatus,
+        DATE_FORMAT(S.FOUND_DATE, '%Y-%m-%d') AS foundDate, S.CALL_RESULT AS callResult,
+        S.TARGET_NAME AS targetName, S.INTRO_EMPL_ID AS introducerId,
+        S.INTRO_NAME AS introducerName, S.ORG_MSTR_CODE AS regionCode,
+        S.ORG_CODE AS districtCode, S.SEX_CODE AS sexCode,
+        S.AGE_TEXT AS ageText, S.RESIDENCE AS residence,
+        S.PREFERRED_PLACE AS preferredPlace, S.NOTES AS notes,
+        S.CONSULT_TOPIC AS consultTopic, DATE_FORMAT(S.MANPIK_CONFIRMED_AT, '%Y-%m-%dT%H:%i:%s') AS manpikConfirmedAt,
+        S.MANPIK_INFO AS manpikInfo, S.ASSIGNED_USER_ID AS assignedUserId,
+        S.ASSIGNED_USER_NAME AS assignedUserName,
+        S.PHONE_LAST4 AS phoneLast4, S.ROW_VERSION AS rowVersion, S.DEL_IND AS deleted,
+        DATE_FORMAT(S.SYS_RUSR_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS createdAt,
+        DATE_FORMAT(S.SYS_MUSR_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS updatedAt
+    </sql>
+
+    <sql id="scope">
+        AND (1 = 0
+        <if test="scopeUnassigned"> OR S.ORG_MSTR_CODE IS NULL OR S.ORG_CODE IS NULL </if>
+        <foreach collection="districts" item="district">
+            OR (S.ORG_MSTR_CODE = #{district.regionCode} AND S.ORG_CODE = #{district.districtCode})
+        </foreach>
+        )
+    </sql>
+
+    <sql id="filters">
+        WHERE S.LIB_ID = #{libId}
+          AND S.DEL_IND = #{f.deleted}
+        <include refid="scope"/>
+        <if test="f.regionCode != null">
+          AND S.ORG_MSTR_CODE = #{f.regionCode} AND S.ORG_CODE = #{f.districtCode}
+        </if>
+        <if test="f.callStatus != null"> AND BINARY S.CALL_STATUS = BINARY #{f.callStatus} </if>
+        <if test="f.callResult != null"> AND BINARY S.CALL_RESULT = BINARY #{f.callResult} </if>
+        <if test="f.foundFrom != null"> AND S.FOUND_DATE &gt;= #{f.foundFrom} </if>
+        <if test="f.foundTo != null"> AND S.FOUND_DATE &lt;= #{f.foundTo} </if>
+        <if test="f.createdFrom != null"> AND S.SYS_RUSR_DTTM &gt;= #{f.createdFrom} </if>
+        <if test="f.assignedUserId != null"> AND S.ASSIGNED_USER_ID = #{f.assignedUserId} </if>
+        <choose>
+            <when test="f.assigned == 'any'"> AND (S.ASSIGNED_USER_ID IS NOT NULL OR S.ASSIGNED_USER_NAME &lt;&gt; '') </when>
+            <when test="f.assigned == 'none'"> AND S.ASSIGNED_USER_ID IS NULL AND S.ASSIGNED_USER_NAME = '' </when>
+        </choose>
+        <choose>
+            <when test="f.manpik == 'any'"> AND S.MANPIK_CONFIRMED_AT IS NOT NULL </when>
+            <when test="f.manpik == 'none'"> AND S.MANPIK_CONFIRMED_AT IS NULL </when>
+        </choose>
+        <if test="f.roundCode != null">
+            AND <if test="f.roundState == 'none'"> NOT </if> EXISTS (
+                SELECT 1 FROM CALLSHEETROUND R
+                 WHERE R.LIB_ID = S.LIB_ID AND R.SHEET_ID = S.SHEET_ID AND R.ROUND_CODE = #{f.roundCode}
+            )
+        </if>
+        <if test="f.phoneLast4 != null"> AND S.PHONE_LAST4 = #{f.phoneLast4} </if>
+        <if test="f.qLike != null">
+            AND (
+                S.TARGET_NAME LIKE #{f.qLike} ESCAPE '!'
+                OR S.INTRO_NAME LIKE #{f.qLike} ESCAPE '!'
+                OR S.RESIDENCE LIKE #{f.qLike} ESCAPE '!'
+                OR S.PREFERRED_PLACE LIKE #{f.qLike} ESCAPE '!'
+                OR S.NOTES LIKE #{f.qLike} ESCAPE '!'
+                OR S.CONSULT_TOPIC LIKE #{f.qLike} ESCAPE '!'
+                OR S.CALL_STATUS LIKE #{f.qLike} ESCAPE '!'
+                OR S.CALL_RESULT LIKE #{f.qLike} ESCAPE '!'
+                OR S.ASSIGNED_USER_NAME LIKE #{f.qLike} ESCAPE '!'
+                OR S.MANPIK_INFO LIKE #{f.qLike} ESCAPE '!'
+                OR EXISTS (
+                    SELECT 1 FROM CALLSHEETROUND R WHERE R.LIB_ID = S.LIB_ID AND R.SHEET_ID = S.SHEET_ID
+                       AND R.CALLER_NAME LIKE #{f.qLike} ESCAPE '!'
+                )
+                <if test="f.qLast4 != null"> OR S.PHONE_LAST4 = #{f.qLast4} </if>
+            )
+        </if>
+    </sql>
+
+    <sql id="direction"><choose><when test="f.desc">DESC</when><otherwise>ASC</otherwise></choose></sql>
+
+    <select id="selectSheets" resultType="map">
+        SELECT <include refid="columns"/>
+          FROM CALLSHEET S
+        <include refid="filters"/>
+         ORDER BY
+        <choose>
+            <when test="f.sort == 'id'">S.SHEET_ID</when>
+            <when test="f.sort == 'callStatus'">S.CALL_STATUS</when>
+            <when test="f.sort == 'callResult'">S.CALL_RESULT</when>
+            <when test="f.sort == 'targetName'">S.TARGET_NAME</when>
+            <when test="f.sort == 'introducerName'">S.INTRO_NAME</when>
+            <when test="f.sort == 'district'">S.ORG_MSTR_CODE <include refid="direction"/>, S.ORG_CODE</when>
+            <when test="f.sort == 'manpikConfirmedAt'">S.MANPIK_CONFIRMED_AT</when>
+            <when test="f.sort == 'assignedUserName'">S.ASSIGNED_USER_NAME</when>
+            <when test="f.sort == 'createdAt'">S.SYS_RUSR_DTTM</when>
+            <when test="f.sort == 'updatedAt'">S.SYS_MUSR_DTTM</when>
+            <otherwise>S.FOUND_DATE</otherwise>
+        </choose>
+        <include refid="direction"/>, S.SHEET_ID DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countSheets" resultType="long">
+        SELECT COUNT(*) FROM CALLSHEET S <include refid="filters"/>
+    </select>
+
+    <select id="selectSheetById" resultType="map">
+        SELECT <include refid="columns"/>, S.SOURCE_ENC AS sourceEnc
+          FROM CALLSHEET S
+         WHERE S.LIB_ID = #{libId} AND S.SHEET_ID = #{id}
+           <if test="!includeDeleted">AND S.DEL_IND = 'N'</if>
+           <include refid="scope"/>
+    </select>
+
+    <select id="selectSheetAfterWrite" resultType="map">
+        SELECT <include refid="columns"/>
+          FROM CALLSHEET S WHERE S.LIB_ID = #{libId} AND S.SHEET_ID = #{id}
+    </select>
+
+    <select id="selectRounds" resultType="map">
+        SELECT R.SHEET_ID AS sheetId, R.ROUND_CODE AS code, R.ROUND_LABEL AS label,
+               R.CALLER_USER_ID AS callerUserId, R.CALLER_NAME AS callerName
+          FROM CALLSHEETROUND R WHERE R.LIB_ID = #{libId}
+        <choose>
+            <when test="ids != null and !ids.isEmpty()">
+                AND R.SHEET_ID IN
+                <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+    </select>
+
+    <select id="selectDistinctStatuses" resultType="string">
+        SELECT DISTINCT S.CALL_STATUS COLLATE utf8mb4_bin AS statusValue FROM CALLSHEET S
+         WHERE S.LIB_ID = #{libId} AND S.DEL_IND = 'N' AND S.CALL_STATUS &lt;&gt; ''
+         <include refid="scope"/>
+         ORDER BY statusValue LIMIT #{limit}
+    </select>
+
+    <select id="selectDistinctResults" resultType="string">
+        SELECT DISTINCT S.CALL_RESULT COLLATE utf8mb4_bin AS resultValue FROM CALLSHEET S
+         WHERE S.LIB_ID = #{libId} AND S.DEL_IND = 'N' AND S.CALL_RESULT &lt;&gt; ''
+         <include refid="scope"/>
+         ORDER BY resultValue LIMIT #{limit}
+    </select>
+
+    <select id="selectStatsSummary" resultType="map">
+        SELECT COUNT(*) AS total,
+               COUNT(CASE WHEN S.ASSIGNED_USER_ID IS NULL AND S.ASSIGNED_USER_NAME = '' THEN 1 END) AS unassigned,
+               COUNT(S.MANPIK_CONFIRMED_AT) AS manpik
+          FROM CALLSHEET S <include refid="filters"/>
+    </select>
+
+    <select id="selectStatsByStatus" resultType="map">
+        SELECT S.CALL_STATUS COLLATE utf8mb4_bin AS labelValue, COUNT(*) AS cnt FROM CALLSHEET S <include refid="filters"/>
+         GROUP BY labelValue ORDER BY cnt DESC, labelValue
+    </select>
+
+    <select id="selectStatsByResult" resultType="map">
+        SELECT S.CALL_RESULT COLLATE utf8mb4_bin AS labelValue, COUNT(*) AS cnt FROM CALLSHEET S <include refid="filters"/>
+         GROUP BY labelValue ORDER BY cnt DESC, labelValue
+    </select>
+
+    <select id="selectStatsByDistrict" resultType="map">
+        SELECT S.ORG_MSTR_CODE AS regionCode, S.ORG_CODE AS districtCode, COUNT(*) AS cnt
+          FROM CALLSHEET S <include refid="filters"/>
+         GROUP BY S.ORG_MSTR_CODE, S.ORG_CODE ORDER BY cnt DESC, regionCode, districtCode
+    </select>
+
+    <select id="countTargetVisible" resultType="long">
+        SELECT COUNT(*) FROM TGMSTR S
+         WHERE S.LIB_ID = #{libId} AND S.TGT_ID = #{id} AND S.DEL_IND = 'N'
+        <include refid="scope"/>
+    </select>
+
+    <select id="selectTargets" resultType="map">
+        SELECT S.TGT_ID AS id, S.TGT_NAME_HAN AS name, S.TGT_CODE AS code,
+               S.ORG_MSTR_CODE AS regionCode, S.ORG_CODE AS districtCode
+          FROM TGMSTR S WHERE S.LIB_ID = #{libId} AND S.DEL_IND = 'N'
+        <include refid="scope"/>
+        <if test="qLike != null">
+            AND (S.TGT_NAME_HAN LIKE #{qLike} ESCAPE '!' OR S.TGT_CODE LIKE #{qLike} ESCAPE '!')
+        </if>
+         ORDER BY S.TGT_NAME_HAN, S.TGT_ID LIMIT #{limit}
+    </select>
+
+    <select id="selectMembers" resultType="map">
+        SELECT S.EMPL_ID AS id, S.EMPL_NAME_HAN AS name, S.EMPL_CODE AS code,
+               S.ORG_MSTR_CODE AS regionCode, S.ORG_CODE AS districtCode
+          FROM PSMSTR S WHERE S.USE_IND = 'Y'
+        <include refid="scope"/>
+        <if test="qLike != null">
+            AND (S.EMPL_NAME_HAN LIKE #{qLike} ESCAPE '!' OR S.EMPL_CODE LIKE #{qLike} ESCAPE '!')
+        </if>
+         ORDER BY S.EMPL_NAME_HAN, S.EMPL_ID LIMIT #{limit}
+    </select>
+
+    <select id="countMember" resultType="long">
+        SELECT COUNT(*) FROM PSMSTR S WHERE S.EMPL_ID = #{employeeId} AND S.USE_IND = 'Y'
+        <include refid="scope"/>
+    </select>
+
+    <insert id="insertSheet" useGeneratedKeys="true" keyProperty="id" keyColumn="SHEET_ID">
+        INSERT INTO CALLSHEET (
+            LIB_ID, TGT_ID, CALL_STATUS, FOUND_DATE,
+            CALL_RESULT, TARGET_NAME, INTRO_EMPL_ID, INTRO_NAME,
+            ORG_MSTR_CODE, ORG_CODE, SEX_CODE, AGE_TEXT,
+            RESIDENCE, PREFERRED_PLACE, NOTES, CONSULT_TOPIC,
+            MANPIK_CONFIRMED_AT, MANPIK_INFO, ASSIGNED_USER_ID, ASSIGNED_USER_NAME,
+            SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID,
+            SYS_MUSR_IP, SYS_MUSR_DTTM
+        ) VALUES (
+            #{libId}, #{targetId}, #{callStatus}, #{foundDate},
+            #{callResult}, #{targetName}, #{introducerId}, #{introducerName},
+            #{regionCode}, #{districtCode}, #{sexCode}, #{ageText},
+            #{residence}, #{preferredPlace}, #{notes}, #{consultTopic},
+            #{manpikConfirmedAt}, #{manpikInfo}, #{assignedUserId}, #{assignedUserName},
+            #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId},
+            #{sysIp}, #{sysAt}
+        )
+    </insert>
+
+    <update id="attachSecrets">
+        UPDATE CALLSHEET
+           SET PHONE_ENC = #{phoneEnc}, PHONE_LAST4 = #{phoneLast4}, PHONE_KEY_VER = #{phoneKeyVer},
+               SOURCE_ENC = #{sourceEnc}
+         WHERE LIB_ID = #{libId} AND SHEET_ID = #{id} AND ROW_VERSION = 1 AND DEL_IND = 'N'
+    </update>
+
+    <update id="updateSheet">
+        UPDATE CALLSHEET S
+        <set>
+            <if test="changed.contains('targetId')">TGT_ID = #{targetId},</if>
+            <if test="changed.contains('callStatus')">CALL_STATUS = #{callStatus},</if>
+            <if test="changed.contains('foundDate')">FOUND_DATE = #{foundDate},</if>
+            <if test="changed.contains('callResult')">CALL_RESULT = #{callResult},</if>
+            <if test="changed.contains('targetName')">TARGET_NAME = #{targetName},</if>
+            <if test="changed.contains('introducerId')">INTRO_EMPL_ID = #{introducerId},</if>
+            <if test="changed.contains('introducerName')">INTRO_NAME = #{introducerName},</if>
+            <if test="changed.contains('regionCode')">ORG_MSTR_CODE = #{regionCode},</if>
+            <if test="changed.contains('districtCode')">ORG_CODE = #{districtCode},</if>
+            <if test="changed.contains('sexCode')">SEX_CODE = #{sexCode},</if>
+            <if test="changed.contains('ageText')">AGE_TEXT = #{ageText},</if>
+            <if test="changed.contains('residence')">RESIDENCE = #{residence},</if>
+            <if test="changed.contains('preferredPlace')">PREFERRED_PLACE = #{preferredPlace},</if>
+            <if test="changed.contains('notes')">NOTES = #{notes},</if>
+            <if test="changed.contains('consultTopic')">CONSULT_TOPIC = #{consultTopic},</if>
+            <if test="changed.contains('manpikConfirmedAt')">MANPIK_CONFIRMED_AT = #{manpikConfirmedAt},</if>
+            <if test="changed.contains('manpikInfo')">MANPIK_INFO = #{manpikInfo},</if>
+            <if test="changed.contains('assignedUserId')">ASSIGNED_USER_ID = #{assignedUserId},</if>
+            <if test="changed.contains('assignedUserName')">ASSIGNED_USER_NAME = #{assignedUserName},</if>
+            <if test="phoneChange">
+                PHONE_ENC = #{phoneEnc}, PHONE_LAST4 = #{phoneLast4}, PHONE_KEY_VER = #{phoneKeyVer},
+            </if>
+            <if test="sourceChange">SOURCE_ENC = #{sourceEnc},</if>
+            ROW_VERSION = ROW_VERSION + 1, SYS_MUSR_ID = #{sysUserId}, SYS_MUSR_IP = #{sysIp}, SYS_MUSR_DTTM = #{sysAt}
+        </set>
+        WHERE S.LIB_ID = #{libId} AND S.SHEET_ID = #{id} AND S.DEL_IND = 'N' AND S.ROW_VERSION = #{expectedVersion}
+        <include refid="scope"/>
+    </update>
+
+    <update id="updateDeleted">
+        UPDATE CALLSHEET S
+           SET DEL_IND = #{toInd}, ROW_VERSION = ROW_VERSION + 1,
+               SYS_MUSR_ID = #{sysUserId}, SYS_MUSR_IP = #{sysIp}, SYS_MUSR_DTTM = #{sysAt}
+         WHERE S.LIB_ID = #{libId} AND S.SHEET_ID = #{id} AND S.DEL_IND = #{fromInd}
+           AND S.ROW_VERSION = #{expectedVersion}
+        <include refid="scope"/>
+    </update>
+
+    <!-- These helpers run only after a scoped parent insert/update succeeds in the same transaction. -->
+    <insert id="upsertRound">
+        INSERT INTO CALLSHEETROUND (
+            LIB_ID, SHEET_ID, ROUND_CODE, ROUND_LABEL, CALLER_USER_ID, CALLER_NAME,
+            SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM
+        ) VALUES (
+            #{libId}, #{sheetId}, #{code}, #{label}, #{callerUserId}, #{callerName},
+            #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt}
+        )
+        ON DUPLICATE KEY UPDATE ROUND_LABEL = VALUES(ROUND_LABEL), CALLER_USER_ID = VALUES(CALLER_USER_ID),
+            CALLER_NAME = VALUES(CALLER_NAME), SYS_MUSR_ID = VALUES(SYS_MUSR_ID),
+            SYS_MUSR_IP = VALUES(SYS_MUSR_IP), SYS_MUSR_DTTM = VALUES(SYS_MUSR_DTTM)
+    </insert>
+
+    <delete id="deleteRound">
+        DELETE FROM CALLSHEETROUND WHERE LIB_ID = #{libId} AND SHEET_ID = #{sheetId} AND ROUND_CODE = #{code}
+    </delete>
+
+    <select id="selectLastChangeLogForUpdate" resultType="map">
+        SELECT C.SEQ_NO AS seq, C.ENTRY_HASH AS hash
+          FROM CHGLOG C WHERE C.LIB_ID = #{libId}
+         ORDER BY C.SEQ_NO DESC, C.CHG_ID DESC LIMIT 1 FOR UPDATE
+    </select>
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.settings.persistence.LibrarySettingsMapper">
+    <select id="selectLibraryWeekSettings" resultType="map">
+        SELECT l.LIB_NAME AS libraryName, c.CONFIG_CODE AS configCode, c.CONFIG_VALUE AS weekStart,
+               DATE_FORMAT(c.SYS_MUSR_DTTM, '%Y-%m-%dT%H:%i:%s') AS updatedAt
+          FROM LIBMSTR l
+          LEFT JOIN SYSCFG c ON c.LIB_ID = l.LIB_ID AND c.CONFIG_CODE IN ('WEEK_START', 'weekStart')
+         WHERE l.LIB_ID = #{libId}
+         ORDER BY c.CONFIG_CODE = 'WEEK_START' DESC LIMIT 1
+    </select>
+
+    <insert id="saveLibraryWeekStart">
+        INSERT INTO SYSCFG (
+            LIB_ID, CONFIG_CODE, CONFIG_NAME, CONFIG_VALUE,
+            SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM
+        ) VALUES (
+            #{libId}, 'WEEK_START', '주 시작 요일', #{weekStart},
+            #{stamp.userId}, #{stamp.ip}, #{stamp.utcNow}, #{stamp.userId}, #{stamp.ip}, #{stamp.utcNow}
+        )
+        ON DUPLICATE KEY UPDATE CONFIG_VALUE = VALUES(CONFIG_VALUE), SYS_MUSR_ID = VALUES(SYS_MUSR_ID),
+            SYS_MUSR_IP = VALUES(SYS_MUSR_IP),
+            SYS_MUSR_DTTM = GREATEST(VALUES(SYS_MUSR_DTTM), DATE_ADD(SYS_MUSR_DTTM, INTERVAL 1 SECOND))
+    </insert>
+
+    <select id="selectWebMenuGroups" resultType="string">
+        SELECT CONFIG_VALUE
+          FROM SYSCFG
+         WHERE LIB_ID = #{libId} AND CONFIG_CODE = 'WEB_MENU_GROUPS_V1'
+    </select>
+
+    <insert id="saveWebMenuGroups">
+        INSERT INTO SYSCFG (
+            LIB_ID, CONFIG_CODE, CONFIG_NAME, CONFIG_VALUE,
+            SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM
+        ) VALUES (
+            #{libId}, 'WEB_MENU_GROUPS_V1', '웹 메뉴 폴더 배치', #{groups},
+            #{stamp.userId}, #{stamp.ip}, #{stamp.utcNow}, #{stamp.userId}, #{stamp.ip}, #{stamp.utcNow}
+        )
+        ON DUPLICATE KEY UPDATE CONFIG_VALUE = VALUES(CONFIG_VALUE), SYS_MUSR_ID = VALUES(SYS_MUSR_ID),
+            SYS_MUSR_IP = VALUES(SYS_MUSR_IP), SYS_MUSR_DTTM = VALUES(SYS_MUSR_DTTM)
+    </insert>
+</mapper>

@@ -1,0 +1,8 @@
+// 루트 공통 설정. 로깅은 Log4j2 단일 구현만 사용한다(Logback·Boot 기본 로깅 스타터·log4j-to-slf4j 제외).
+allprojects {
+    configurations.configureEach {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+    }
+}

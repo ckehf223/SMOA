@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SMOA 업무</title>
+  <link rel="stylesheet" href="/assets/theme.css">
+  <link rel="stylesheet" href="/assets/app.css">
+  <script src="/assets/theme.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-mark" src="/assets/smoa-mark.png" width="36" height="36" alt="">
+        <div>
+          <div class="brand-name" id="brand">SMOA</div>
+          <div class="brand-sub">업무 화면</div>
+        </div>
+      </div>
+      <nav class="sidenav" id="nav" aria-label="업무 메뉴"></nav>
+      <div class="sidebar-bottom">
+        <div class="operator">
+          <div class="avatar" id="avatar" aria-hidden="true"></div>
+          <div class="operator-text">
+            <strong class="who" id="who"></strong>
+            <span id="switch"></span>
+          </div>
+        </div>
+        <button type="button" class="secondary small" id="logout">로그아웃</button>
+      </div>
+    </aside>
+    <div class="workarea">
+      <header class="topbar">
+        <div class="breadcrumb" aria-label="현재 위치"><span>업무</span><span aria-hidden="true">/</span><strong id="crumb"></strong></div>
+        <div class="top-status" data-display-controls></div>
+      </header>
+      <main id="main" tabindex="-1"></main>
+    </div>
+  </div>
+  <script type="module" src="/assets/operator.js"></script>
+</body>
+</html>

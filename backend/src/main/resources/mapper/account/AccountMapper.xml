@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.account.persistence.AccountMapper">
+
+    <!-- USERMSTR. 계정별 권한·범위 컬럼은 없다. 권한은 AUTH_CODE 가 가리키는 패키지에서만 온다. -->
+    <resultMap id="accountRow" type="com.smoa.account.persistence.AccountRow">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="usernameKey" column="usernameKey"/>
+        <result property="displayName" column="displayName"/>
+        <result property="packageId" column="packageId"/>
+        <result property="passwordHash" column="passwordHash"/>
+        <result property="active" column="active"/>
+        <result property="credentialVersion" column="credentialVersion"/>
+    </resultMap>
+
+    <sql id="accountColumns">
+        U.USER_ID AS id,
+        U.LOGIN_ID AS username,
+        LOWER(U.LOGIN_ID) AS usernameKey,
+        U.USER_NAME_HAN AS displayName,
+        U.AUTH_CODE AS packageId,
+        U.PASSWORD_HASH AS passwordHash,
+        (U.USE_IND = 'Y') AS active,
+        U.PWD_VERSION AS credentialVersion
+    </sql>
+
+    <select id="selectAccountById" resultMap="accountRow">
+        SELECT <include refid="accountColumns"/>
+          FROM USERMSTR U
+         WHERE U.USER_ID = #{id}
+    </select>
+
+    <!-- LOGIN_ID 는 utf8mb4_general_ci 라 대소문자를 구분하지 않는다. COLLATE 를 명시해 설정 변화와 무관하게 같은 의미로 고정한다. -->
+    <select id="selectAccountByUsernameKey" resultMap="accountRow">
+        SELECT <include refid="accountColumns"/>
+          FROM USERMSTR U
+         WHERE U.LOGIN_ID = #{usernameKey} COLLATE utf8mb4_general_ci
+    </select>
+
+    <select id="selectAllAccounts" resultMap="accountRow">
+        SELECT <include refid="accountColumns"/>
+          FROM USERMSTR U
+         ORDER BY LOWER(U.LOGIN_ID), U.USER_ID
+    </select>
+
+    <select id="countAccountsByPackageId" resultType="long">
+        SELECT COUNT(*)
+          FROM USERMSTR U
+         WHERE U.AUTH_CODE = #{packageId}
+    </select>
+
+    <select id="countAllAccounts" resultType="long">
+        SELECT COUNT(*) FROM USERMSTR
+    </select>
+
+    <!-- 잠금 읽기: 다른 트랜잭션이 막 커밋한 변경까지 반영된 값을 읽는다. -->
+    <select id="countActiveSuperAdmins" resultType="long">
+        SELECT COUNT(*)
+          FROM USERMSTR U
+          JOIN AUTHMSTR A ON A.AUTH_CODE = U.AUTH_CODE
+         WHERE U.USE_IND = 'Y'
+           AND A.USE_IND = 'Y'
+           AND A.SUPER_ADMIN_IND = 'Y'
+           FOR UPDATE
+    </select>
+
+    <select id="lockSuperAdminPackages" resultType="string">
+        SELECT A.AUTH_CODE
+          FROM AUTHMSTR A
+         WHERE A.SUPER_ADMIN_IND = 'Y'
+         ORDER BY A.AUTH_CODE
+           FOR UPDATE
+    </select>
+
+    <insert id="insertAccount">
+        INSERT INTO USERMSTR
+               (USER_ID, LOGIN_ID, USER_NAME_HAN, PASSWORD_HASH, AUTH_CODE, USE_IND, PWD_VERSION,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES (#{id}, #{username}, #{displayName}, #{passwordHash}, #{packageId}, IF(#{active}, 'Y', 'N'), #{credentialVersion},
+                #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+    <!-- 로그인 ID·EMPL_ID·등록 감사 값은 바꾸지 않는다. -->
+    <update id="updateAccount">
+        UPDATE USERMSTR
+           SET USER_NAME_HAN = #{displayName},
+               PASSWORD_HASH = #{passwordHash},
+               AUTH_CODE = #{packageId},
+               USE_IND = IF(#{active}, 'Y', 'N'),
+               PWD_VERSION = #{credentialVersion},
+               SYS_MUSR_ID = #{sysUserId},
+               SYS_MUSR_IP = #{sysIp},
+               SYS_MUSR_DTTM = #{sysAt}
+         WHERE USER_ID = #{id}
+    </update>
+
+</mapper>

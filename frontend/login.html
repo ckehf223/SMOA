@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>SMOA 로그인</title>
+  <link rel="icon" href="/assets/design/smoa-mark.png">
+  <link rel="stylesheet" href="/assets/design/theme.css">
+  <link rel="stylesheet" href="/assets/css/app.css">
+  <script src="/assets/design/theme.js"></script>
+</head>
+<body class="login-body">
+  <main class="auth">
+    <section class="auth-art">
+      <div class="brand"><img src="/assets/design/smoa-mark.png" class="brand-mark" alt="" width="36" height="36"><strong class="brand-name">SMOA</strong></div>
+      <div><h1>한 사람의 여정부터,<br>전체의 흐름까지.</h1><p>매일의 기록을 연결하고 변화를 살펴보세요.</p></div>
+      <small>계정은 관리자가 발급합니다.</small>
+    </section>
+    <section class="auth-card" aria-labelledby="login-heading">
+      <div class="auth-tools" data-display-controls></div>
+      <h2 id="login-heading">로그인</h2>
+      <p class="intro" id="login-intro">관리자가 발급한 아이디와 비밀번호로 접속합니다.</p>
+      <form id="login-form" method="post" action="/api/auth/login" autocomplete="on">
+        <label class="field" for="username"><span class="field-label">로그인 ID</span><input id="username" name="username" type="text" autocomplete="username" required maxlength="32"></label>
+        <label class="field" for="password"><span class="field-label">비밀번호</span><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="128"></label>
+        <label class="field" id="login-otp-field" for="otp" hidden>
+          <span class="field-label">인증 앱 코드</span>
+          <input id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" aria-describedby="login-otp-hint" disabled>
+          <small class="muted" id="login-otp-hint">인증 앱에 표시된 6자리 코드입니다. 처음 설정할 때는 관리자에게 등록 키를 받으세요.</small>
+        </label>
+        <p id="login-error" class="error" role="alert" hidden></p>
+        <button class="btn primary" type="submit" id="login-submit" disabled>로그인</button>
+      </form>
+      <p id="login-dev" class="badge warn" hidden>가상 자료 모드입니다. 서버를 종료하면 자료가 사라집니다.</p>
+    </section>
+  </main>
+  <script type="module" src="/assets/js/login.js"></script>
+</body>
+</html>

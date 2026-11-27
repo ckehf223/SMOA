@@ -1,0 +1,608 @@
+{
+  "description": "Generated solely from synthetic data by desktop4.0.41 pure functions. No real records or DB access.",
+  "rounds": [
+    {
+      "value": "신규",
+      "legacy": 0,
+      "current": 0
+    },
+    {
+      "value": "1차",
+      "legacy": 1,
+      "current": 1
+    },
+    {
+      "value": "4차",
+      "legacy": 4,
+      "current": 4
+    },
+    {
+      "value": "5차",
+      "legacy": 5,
+      "current": "5차"
+    },
+    {
+      "value": "추가",
+      "legacy": 5,
+      "current": 5
+    },
+    {
+      "value": "추가회차",
+      "legacy": 5,
+      "current": 5
+    },
+    {
+      "value": "수능인원",
+      "legacy": "수능인원",
+      "current": "수능인원"
+    }
+  ],
+  "results": [
+    {
+      "value": "만픽",
+      "migration": {
+        "result": "만픽"
+      },
+      "freeText": {
+        "result": "만픽"
+      }
+    },
+    {
+      "value": "부재",
+      "migration": {
+        "result": "부재"
+      },
+      "freeText": {
+        "result": "부재"
+      }
+    },
+    {
+      "value": "재콜링",
+      "migration": {
+        "result": "재통화",
+        "originalResult": "재콜링"
+      },
+      "freeText": {
+        "result": "재통화",
+        "originalResult": "재콜링"
+      }
+    },
+    {
+      "value": "재콜요청",
+      "migration": {
+        "result": "기타",
+        "originalResult": "재콜요청"
+      },
+      "freeText": {
+        "result": "재통화",
+        "reportedResult": "재콜요청"
+      }
+    },
+    {
+      "value": "차후재콜링",
+      "migration": {
+        "result": "기타",
+        "originalResult": "차후재콜링"
+      },
+      "freeText": {
+        "result": "재통화",
+        "reportedResult": "차후재콜링"
+      }
+    },
+    {
+      "value": "다른번호",
+      "migration": {
+        "result": "기타",
+        "originalResult": "다른번호"
+      },
+      "freeText": {
+        "result": "기타",
+        "originalResult": "다른번호"
+      }
+    },
+    {
+      "value": "알수없는결과",
+      "migration": {
+        "result": "기타",
+        "originalResult": "알수없는결과"
+      },
+      "freeText": {
+        "result": "기타",
+        "originalResult": "알수없는결과"
+      }
+    }
+  ],
+  "minutes": [
+    {
+      "start": "19:40",
+      "end": "20:00",
+      "result": 20
+    },
+    {
+      "start": "23:50",
+      "end": "00:10",
+      "result": 20
+    },
+    {
+      "start": "",
+      "end": "",
+      "result": 0
+    },
+    {
+      "start": "09:00",
+      "end": "09:00",
+      "result": 0
+    }
+  ],
+  "calling": {
+    "workspace": {
+      "id": "0d5bf79c-dfb5-4cbb-b4e7-cb9f9e0d8bba",
+      "name": "가상 결과 대조",
+      "gospelStageVersion": 1,
+      "stages": [
+        "찾B",
+        "콜링",
+        "만픽",
+        "찾A",
+        "합 B",
+        "복음방",
+        "신카접수",
+        "센터등록"
+      ],
+      "stageNames": {
+        "찾B": "찾B",
+        "콜링": "콜링",
+        "만픽": "만픽",
+        "찾A": "찾A",
+        "합 B": "합 B",
+        "복음방": "복음방",
+        "신카접수": "신카접수",
+        "센터등록": "센터등록"
+      },
+      "inactiveStages": [],
+      "fields": [],
+      "goals": [],
+      "people": [
+        {
+          "id": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+          "code": "P-FIXTURE-1",
+          "name": "가상 대상자",
+          "gender": "미입력",
+          "age": "",
+          "ageAsOf": "2026-11-01",
+          "time": "",
+          "classification1": "개척",
+          "classification2": "노방",
+          "place": "",
+          "tool": "",
+          "residence": "",
+          "teacher": "",
+          "reason": "",
+          "worker": "",
+          "introducerId": "",
+          "introducerSnapshot": null,
+          "region": "1구역",
+          "className": "",
+          "employment": "미입력",
+          "stage": "찾B",
+          "date": "2026-11-01",
+          "appointment": "",
+          "notes": "",
+          "custom": {},
+          "createdAt": "2026-11-26T09:10:46.188Z",
+          "updatedAt": "2026-11-26T09:10:46.188Z",
+          "activities": [],
+          "transitions": [
+            {
+              "id": "e7659fd3-33dc-4a91-8221-3b614e142725",
+              "from": null,
+              "to": "찾B",
+              "effectiveLocal": "2026-11-01T00:00",
+              "recordedAt": "2026-11-26T09:10:46.188Z",
+              "actor": "가상검증",
+              "fromName": "",
+              "toName": "찾B",
+              "reason": "최초 등록",
+              "region": "1구역",
+              "className": "",
+              "worker": "",
+              "memberId": "",
+              "workerId": "",
+              "employment": "미입력"
+            }
+          ],
+          "lifecycle": [],
+          "status": "active"
+        }
+      ],
+      "activityLogs": [],
+      "regionalActivities": [],
+      "socialing": {
+        "programs": [
+          {
+            "id": "aha",
+            "name": "아하!"
+          },
+          {
+            "id": "walking-talking",
+            "name": "워킹토킹"
+          }
+        ],
+        "pending": []
+      },
+      "callingRecords": [
+        {
+          "id": "FIXTURE_CALL_1",
+          "personId": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+          "date": "2026-11-02",
+          "time": "",
+          "caller": "가상콜링자",
+          "round": 5,
+          "roundName": "수능인원",
+          "result": "부재",
+          "notes": "가상 메모 / 슬래시 보존",
+          "personName": "가상 대상자",
+          "personCode": "P-FIXTURE-1",
+          "introducer": "",
+          "area": "1구역",
+          "findingDate": "2026-11-01"
+        },
+        {
+          "id": "FIXTURE_CALL_2",
+          "personId": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+          "date": "2026-11-03",
+          "time": "18:30",
+          "caller": "가상콜링자",
+          "round": 2,
+          "result": "만픽",
+          "notes": "",
+          "personName": "가상 대상자",
+          "personCode": "P-FIXTURE-1",
+          "introducer": "",
+          "area": "1구역",
+          "findingDate": "2026-11-01"
+        }
+      ],
+      "dailyReports": [],
+      "findingReports": [],
+      "organization": {
+        "nodes": [],
+        "members": []
+      },
+      "commonCodes": {
+        "groups": [
+          {
+            "id": "className",
+            "label": "반",
+            "system": true,
+            "active": true,
+            "items": [
+              {
+                "id": "f1e5c703-508e-4d95-bf93-f0614eb6adc0",
+                "value": "1",
+                "label": "1",
+                "aliases": [],
+                "active": true,
+                "order": 0
+              },
+              {
+                "id": "5dab0dfa-e021-45ed-8cb3-eef4026fdefa",
+                "value": "2",
+                "label": "2",
+                "aliases": [],
+                "active": true,
+                "order": 1
+              },
+              {
+                "id": "1d2905d8-350a-48b9-ae5f-1e22b92d9258",
+                "value": "3",
+                "label": "3",
+                "aliases": [],
+                "active": true,
+                "order": 2
+              }
+            ]
+          },
+          {
+            "id": "employment",
+            "label": "직업 구분",
+            "system": true,
+            "active": true,
+            "items": [
+              {
+                "id": "caa5a4eb-6109-46f7-832c-1f4f3015d5d2",
+                "value": "미입력",
+                "label": "미입력",
+                "aliases": [],
+                "active": true,
+                "order": 0
+              },
+              {
+                "id": "a0e94dd1-2756-43b9-8dd1-28a66b83fb07",
+                "value": "직장인",
+                "label": "직장인",
+                "aliases": [],
+                "active": true,
+                "order": 1
+              },
+              {
+                "id": "98101161-1e9f-4ff4-aa4d-d8e8ce6a4ca7",
+                "value": "학생",
+                "label": "학생",
+                "aliases": [],
+                "active": true,
+                "order": 2
+              },
+              {
+                "id": "ceb57b3f-5cc8-40da-ba91-bb2b83f532cd",
+                "value": "기타",
+                "label": "기타",
+                "aliases": [],
+                "active": true,
+                "order": 3
+              }
+            ]
+          },
+          {
+            "id": "position",
+            "label": "직책",
+            "system": true,
+            "active": true,
+            "items": [
+              {
+                "id": "a1cce5d7-9c8f-4c66-a867-f27491a61354",
+                "value": "구성원",
+                "label": "구성원",
+                "aliases": [],
+                "active": true,
+                "order": 0
+              },
+              {
+                "id": "bbf66c74-bd55-413a-9f9c-d7c37c0e7666",
+                "value": "구역원",
+                "label": "구역원",
+                "aliases": [],
+                "active": true,
+                "order": 1
+              },
+              {
+                "id": "a430ebea-9075-4665-bd29-49751f1297b1",
+                "value": "구역장",
+                "label": "구역장",
+                "aliases": [],
+                "active": true,
+                "order": 2
+              },
+              {
+                "id": "1e2ab4e3-7702-4302-a07a-0c05e935869e",
+                "value": "지역장",
+                "label": "지역장",
+                "aliases": [],
+                "active": true,
+                "order": 3
+              },
+              {
+                "id": "8a330142-e713-4805-90d3-11b075a2ca68",
+                "value": "부구역장",
+                "label": "부구역장",
+                "aliases": [],
+                "active": true,
+                "order": 4
+              },
+              {
+                "id": "dfac9ae0-5d53-4fed-9d2e-024f9b21aded",
+                "value": "부지역장",
+                "label": "부지역장",
+                "aliases": [],
+                "active": true,
+                "order": 5
+              }
+            ]
+          },
+          {
+            "id": "activityKind",
+            "label": "활동 종류",
+            "system": true,
+            "active": true,
+            "items": [
+              {
+                "id": "021fb532-301d-405e-a007-2f1328602659",
+                "value": "대화",
+                "label": "대화",
+                "aliases": [],
+                "active": true,
+                "order": 0
+              },
+              {
+                "id": "f738eb87-b769-4e74-ac13-1d4e5f61cbcc",
+                "value": "콜링",
+                "label": "콜링",
+                "aliases": [],
+                "active": true,
+                "order": 1
+              },
+              {
+                "id": "2151db98-8456-4f45-b211-8f707904105a",
+                "value": "만남",
+                "label": "만남",
+                "aliases": [],
+                "active": true,
+                "order": 2
+              }
+            ]
+          },
+          {
+            "id": "activityPlace",
+            "label": "활동 장소",
+            "system": true,
+            "active": true,
+            "items": []
+          }
+        ]
+      },
+      "history": [
+        {
+          "id": "c88cf23f-9127-4895-b8de-69f2340a4c2f",
+          "at": "2026-11-26T09:10:46.189Z",
+          "actor": "가상검증",
+          "action": "콜링 기록 등록",
+          "target": "FIXTURE_CALL_1",
+          "before": null,
+          "after": {
+            "id": "FIXTURE_CALL_1",
+            "personId": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+            "date": "2026-11-02",
+            "time": "",
+            "caller": "가상콜링자",
+            "round": 5,
+            "roundName": "수능인원",
+            "result": "부재",
+            "notes": "가상 메모 / 슬래시 보존",
+            "personName": "가상 대상자",
+            "personCode": "P-FIXTURE-1",
+            "introducer": "",
+            "area": "1구역",
+            "findingDate": "2026-11-01"
+          },
+          "previous": "GENESIS",
+          "hash": "ea58b262e3c2e2610cede664b509eb212ece64a8b730405dcc2b8ce252997bd2"
+        },
+        {
+          "id": "859b0c01-b6b2-4783-9acc-de9001d07845",
+          "at": "2026-11-26T09:10:46.190Z",
+          "actor": "가상검증",
+          "action": "콜링 기록 등록",
+          "target": "FIXTURE_CALL_2",
+          "before": null,
+          "after": {
+            "id": "FIXTURE_CALL_2",
+            "personId": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+            "date": "2026-11-03",
+            "time": "18:30",
+            "caller": "가상콜링자",
+            "round": 2,
+            "result": "만픽",
+            "notes": "",
+            "personName": "가상 대상자",
+            "personCode": "P-FIXTURE-1",
+            "introducer": "",
+            "area": "1구역",
+            "findingDate": "2026-11-01"
+          },
+          "previous": "ea58b262e3c2e2610cede664b509eb212ece64a8b730405dcc2b8ce252997bd2",
+          "hash": "09cf27f279a427231ebccdd30fa2648ad56652f083e8a6181d1891559098bb4f"
+        }
+      ],
+      "revision": 2,
+      "createdAt": "2026-11-26T09:10:46.184Z",
+      "updatedAt": "2026-11-26T09:10:46.190Z"
+    },
+    "inputs": [
+      {
+        "requestId": "FIXTURE_CALL_1",
+        "personId": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+        "date": "2026-11-02",
+        "time": "",
+        "caller": "가상콜링자",
+        "round": "수능인원",
+        "result": "부재",
+        "notes": "가상 메모 / 슬래시 보존"
+      },
+      {
+        "requestId": "FIXTURE_CALL_2",
+        "personId": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+        "date": "2026-11-03",
+        "time": "18:30",
+        "caller": "가상콜링자",
+        "round": 2,
+        "result": "만픽",
+        "notes": ""
+      }
+    ],
+    "expected": {
+      "totals": {
+        "count": 2,
+        "successes": 1,
+        "rate": 50,
+        "targets": 1,
+        "callerCount": 1
+      },
+      "lag": {
+        "count": 1,
+        "missing": 0,
+        "average": 2,
+        "median": 2,
+        "p80": 2,
+        "within": [
+          {
+            "days": 0,
+            "count": 0,
+            "rate": 0
+          },
+          {
+            "days": 1,
+            "count": 0,
+            "rate": 0
+          },
+          {
+            "days": 3,
+            "count": 1,
+            "rate": 100
+          },
+          {
+            "days": 7,
+            "count": 1,
+            "rate": 100
+          },
+          {
+            "days": 14,
+            "count": 1,
+            "rate": 100
+          },
+          {
+            "days": 30,
+            "count": 1,
+            "rate": 100
+          }
+        ]
+      },
+      "rows": [
+        {
+          "id": "FIXTURE_CALL_2",
+          "personId": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+          "date": "2026-11-03",
+          "time": "18:30",
+          "caller": "가상콜링자",
+          "round": 2,
+          "result": "만픽",
+          "notes": "",
+          "personName": "가상 대상자",
+          "personCode": "P-FIXTURE-1",
+          "introducer": "",
+          "area": "1구역",
+          "findingDate": "2026-11-01",
+          "personDeleted": false,
+          "personUnlinked": false
+        },
+        {
+          "id": "FIXTURE_CALL_1",
+          "personId": "5d303d43-c953-464f-9662-6b50b6fa27eb",
+          "date": "2026-11-02",
+          "time": "",
+          "caller": "가상콜링자",
+          "round": "수능인원",
+          "roundName": "수능인원",
+          "result": "부재",
+          "notes": "가상 메모 / 슬래시 보존",
+          "personName": "가상 대상자",
+          "personCode": "P-FIXTURE-1",
+          "introducer": "",
+          "area": "1구역",
+          "findingDate": "2026-11-01",
+          "personDeleted": false,
+          "personUnlinked": false
+        }
+      ]
+    }
+  }
+}

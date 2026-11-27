@@ -1,0 +1,153 @@
+/* 지역활동기록·기간 목표 표의 밀도와 색상은 SMOA 테마를 따른다. */
+.activity-goal-view > .panel > form {
+  align-items: flex-end;
+  gap: 10px 12px;
+}
+
+.activity-goal-view > .panel > form .field { min-width: 0; }
+
+.activity-goal-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-bottom: 12px;
+}
+
+.activity-goal-heading h3,
+.activity-goal-heading p {
+  margin: 0;
+}
+
+.activity-goal-heading p { font-size: 13px; }
+
+.regional-mode-row {
+  display: flex;
+  width: 100%;
+  flex: 0 0 100%;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 3px;
+}
+
+.regional-mode-row .btn[aria-pressed="true"] {
+  color: var(--primary-text);
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.regional-date-picker {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.regional-date-picker .btn { min-height: 40px; }
+
+.regional-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 142px), 1fr));
+  gap: 10px;
+}
+
+.regional-summary-card {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--panel) 85%, var(--bg));
+  font-variant-numeric: tabular-nums;
+}
+
+.regional-summary-card h4 {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.regional-summary-card strong {
+  color: var(--text);
+  font-size: 25px;
+}
+
+.regional-summary-card small {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.regional-comparison {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 9px;
+  align-items: baseline;
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.regional-change.up { color: var(--primary); font-weight: 700; }
+.regional-change.down { color: var(--warn); font-weight: 700; }
+
+.regional-status-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  margin: 14px 0;
+}
+
+.regional-status-totals > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.regional-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 23px;
+  padding: 2px 7px;
+  border-radius: 7px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 11%, var(--panel));
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.regional-status > span { font-weight: 750; }
+.regional-status-1 { color: var(--primary); background: color-mix(in srgb, var(--primary) 15%, var(--panel)); }
+.regional-status-2 { color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--panel)); }
+.regional-status-3 { color: var(--warn); background: var(--warn-bg); }
+.regional-status-4 { color: var(--error); background: var(--error-bg); }
+
+.activity-goal-toolbar {
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.activity-member small,
+.goal-period-cell small {
+  display: block;
+  margin-top: 2px;
+}
+
+.goal-period-cell { white-space: nowrap; }
+
+.goal-matrix { margin-bottom: max(16px, var(--display-section-gap, 16px)); }
+
+.goal-matrix .table-wrap,
+.regional-activity-view .table-wrap,
+.goals-view .table-wrap {
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.goal-matrix .table-wrap { outline-offset: 3px; }
+.goal-matrix thead th:nth-child(n + 3) { text-align: center; }
+.goal-matrix td:nth-child(n + 3) { min-width: 78px; text-align: center; }
+.goal-matrix-values { display: grid; justify-items: center; gap: 4px; }
+.goal-matrix-target { color: var(--primary); white-space: nowrap; }

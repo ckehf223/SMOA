@@ -1,0 +1,21 @@
+{
+  "name": "smoa-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SMOA 웹 이관 초기 슬라이스 (로컬 메모리 모드)",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node --watch server/index.js --memory",
+    "start": "node server/index.js --memory",
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.8.15",
+    "exceljs": "4.4.0",
+    "jszip": "^3.10.2",
+    "officecrypto-tool": "0.0.19"
+  }
+}

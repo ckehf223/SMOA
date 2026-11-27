@@ -1,0 +1,201 @@
+.after-report .after-report-filters {
+  padding: var(--display-panel-pad, 16px);
+}
+
+.after-report-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--display-section-gap, 14px);
+}
+
+.after-report-tabs .btn[aria-selected="true"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-text);
+}
+
+.after-report .after-report-list {
+  min-width: 0;
+  padding: 0;
+}
+
+.after-report-list .table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius);
+}
+
+.after-report-list table {
+  min-width: 650px;
+}
+
+.after-report-list td[data-label="활동일"],
+.after-report-list td[data-label="활동월"],
+.after-report-list td[data-label="타임"] {
+  white-space: nowrap;
+}
+
+.after-report-list-header,
+.after-report-list-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 10px var(--display-panel-pad, 16px);
+}
+
+.after-report-list-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.after-report-list-footer {
+  justify-content: flex-end;
+}
+
+.after-report-dialog .after-report-heading {
+  margin: 0 0 12px;
+}
+
+.after-report-dialog fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.after-report-dialog .after-report-form-section {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.after-report-form-section > legend {
+  padding-inline: 6px;
+  font-weight: 700;
+}
+
+.after-report-form-section .field,
+.after-report-dialog .after-report-hint {
+  margin: 0;
+}
+
+.after-report-hint {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.after-report-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 10px;
+}
+
+.after-report-form-section > .field,
+.after-report-form-section .after-report-time-field {
+  margin-top: 12px;
+}
+
+.after-report-time-field > legend {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.after-report-time-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 8px;
+  max-width: 500px;
+  margin-top: 8px;
+}
+
+.after-report-time-row input {
+  width: 100%;
+  min-width: 0;
+}
+
+.after-report-time-actions {
+  margin-top: 8px;
+}
+
+.after-report-dialog .after-report-question {
+  padding-top: 8px;
+}
+
+.after-report-question > legend {
+  padding-top: 10px;
+}
+
+.after-report-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.after-report-choice {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 40px;
+  padding-inline: 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.after-report-choice:has(input:checked) {
+  border-color: var(--primary);
+}
+
+.after-report-details {
+  margin: 12px 0;
+}
+
+.after-report-detail-pair {
+  display: grid;
+  grid-template-columns: minmax(105px, 1fr) minmax(0, 3fr);
+}
+
+.after-report-details dt,
+.after-report-details dd {
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.after-report-details dt {
+  font-weight: 600;
+}
+
+.after-report-details dd {
+  white-space: pre-wrap;
+}
+
+.after-report-check-results {
+  padding-inline-start: 24px;
+}
+
+.after-report-check-results li + li {
+  margin-top: 6px;
+}
+
+@media (max-width: 560px) {
+  .after-report-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .after-report .after-report-filters > .field {
+    max-inline-size: none;
+  }
+
+  .after-report-dialog .record-dialog-actions .btn {
+    flex: 1;
+  }
+}

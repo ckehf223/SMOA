@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.organization.persistence.BusinessMapper">
+    <!-- The alias is set in each include below, never from a request. -->
+    <sql id="scope">
+        AND (
+            1 = 0
+            <if test="unassigned">
+                OR (${a}.ORG_MSTR_CODE IS NULL OR ${a}.ORG_CODE IS NULL)
+            </if>
+            <foreach collection="districts" item="district">
+                OR (${a}.ORG_MSTR_CODE = #{district.regionCode} AND ${a}.ORG_CODE = #{district.districtCode})
+            </foreach>
+        )
+        <if test="regionCode != null">
+            AND ${a}.ORG_MSTR_CODE = #{regionCode}
+            AND ${a}.ORG_CODE = #{districtCode}
+        </if>
+    </sql>
+
+    <sql id="districtNames">
+        LEFT JOIN ORGMSTR r ON r.ORG_MSTR_CODE = s.ORG_MSTR_CODE
+        LEFT JOIN ORGDTL d ON d.ORG_MSTR_CODE = s.ORG_MSTR_CODE AND d.ORG_CODE = s.ORG_CODE
+    </sql>
+
+    <select id="selectOrganizationMembers" resultType="map">
+        SELECT s.EMPL_ID AS id, s.EMPL_CODE AS code, s.EMPL_NAME_HAN AS name,
+               s.ORG_MSTR_CODE AS regionCode, s.ORG_CODE AS districtCode,
+               r.ORG_MSTR_NAME_HAN AS regionName, d.ORG_NAME_HAN AS districtName,
+               s.BAN_CODE AS className, s.TITLE_CODE AS title, s.JOB_CODE AS job,
+               s.STATUS_CODE AS status, s.USE_IND AS useInd,
+               DATE_FORMAT(s.SYS_MUSR_DTTM, '%Y-%m-%dT%H:%i:%s') AS version
+          FROM PSMSTR s
+          <include refid="districtNames"/>
+         WHERE 1 = 1
+         <include refid="scope"><property name="a" value="s"/></include>
+         <if test="id != null">AND s.EMPL_ID = #{id}</if>
+         ORDER BY r.SORT_NO, d.SORT_NO, s.BAN_CODE, s.EMPL_NAME_HAN, s.EMPL_ID
+    </select>
+
+    <select id="selectCodeGroups" resultType="map">
+        SELECT GROUP_CODE AS code, GROUP_NAME AS name, USE_IND AS useInd
+          FROM CODEMSTR
+         WHERE LIB_ID = #{libraryId}
+         ORDER BY GROUP_CODE
+    </select>
+
+    <select id="selectCodes" resultType="map">
+        SELECT GROUP_CODE AS groupCode, ITEM_CODE AS code, ITEM_NAME AS name,
+               SORT_NO AS sortOrder, USE_IND AS useInd, ALIASES_JSON AS aliasesJson
+          FROM CODEDTL
+         WHERE LIB_ID = #{libraryId}
+         ORDER BY GROUP_CODE, SORT_NO, ITEM_CODE
+    </select>
+
+    <select id="selectGoals" resultType="map">
+        SELECT CAST(s.GOAL_ID AS CHAR) AS id, s.ORG_MSTR_CODE AS regionCode, s.ORG_CODE AS districtCode,
+               r.ORG_MSTR_NAME_HAN AS regionName, d.ORG_NAME_HAN AS districtName,
+               s.BAN_CODE AS className, s.FROM_DATE AS `from`, s.TO_DATE AS `to`,
+               s.STAGE_CODE AS stageId, c.ITEM_NAME AS stageName, s.PERIOD_CODE AS periodUnit, s.TARGET_CNT AS target,
+               DATE_FORMAT(s.SYS_MUSR_DTTM, '%Y-%m-%dT%H:%i:%s') AS version
+          FROM GOALMSTR s
+          <include refid="districtNames"/>
+          LEFT JOIN CODEDTL c ON c.LIB_ID = s.LIB_ID AND c.GROUP_CODE = 'STAGE' AND c.ITEM_CODE = s.STAGE_CODE
+         WHERE s.LIB_ID = #{libraryId}
+         <include refid="scope"><property name="a" value="s"/></include>
+         <if test="id != null">AND s.GOAL_ID = #{id}</if>
+         <if test="from != null">AND s.TO_DATE &gt;= #{from}</if>
+         <if test="to != null">AND s.FROM_DATE &lt;= #{to}</if>
+         <if test="className != null">AND s.BAN_CODE = #{className}</if>
+         <if test="stage != null">
+            <choose>
+                <when test='stage == "*"'>AND s.STAGE_CODE IS NULL</when>
+                <otherwise>AND s.STAGE_CODE = #{stage}</otherwise>
+            </choose>
+         </if>
+         ORDER BY s.FROM_DATE DESC, r.SORT_NO, d.SORT_NO, s.BAN_CODE, s.GOAL_ID
+    </select>
+
+    <!-- Earliest observation supplies the original organization for findings if present. -->
+    <select id="selectFindingAttainments" resultType="map">
+        SELECT p.TGT_ID AS personId, CASE WHEN p.DATE_UNKNOWN_IND = 'N' THEN p.FOUND_DATE END AS `date`,
+               CASE WHEN e.ORG_MSTR_CODE IS NOT NULL AND e.ORG_CODE IS NOT NULL THEN e.ORG_MSTR_CODE
+                    WHEN d.ORG_MSTR_CODE IS NOT NULL AND d.ORG_CODE IS NOT NULL THEN d.ORG_MSTR_CODE
+                    ELSE p.ORG_MSTR_CODE END AS regionCode,
+               CASE WHEN e.ORG_MSTR_CODE IS NOT NULL AND e.ORG_CODE IS NOT NULL THEN e.ORG_CODE
+                    WHEN d.ORG_MSTR_CODE IS NOT NULL AND d.ORG_CODE IS NOT NULL THEN d.ORG_CODE
+                    ELSE p.ORG_CODE END AS districtCode,
+               COALESCE(e.BAN_CODE, d.BAN_CODE, p.BAN_CODE) AS className,
+               d.REPORT_STATUS AS firstReportStatus,
+               TIME_FORMAT(p.FOUND_TIME, '%H:%i') AS foundTime, p.EMPL_ID AS memberId,
+               p.INTRO_NAME AS workerName, p.CLASS2_CODE AS classification2,
+               p.MANPIK_DATE AS manpikDate, p.FIND_A_DATE AS findADate, p.HAB_B_DATE AS habBDate,
+               p.HAB_A_DATE AS habADate, p.YOUNG_TTA_DATE AS youngTtaDate, p.BOKSHIN_DATE AS bokshinDate,
+               p.CARD_RECEIVED_DATE AS cardReceivedDate, p.CENTER_REGISTERED_DATE AS centerRegisteredDate,
+               p.ORG_MSTR_CODE AS currentRegionCode, p.ORG_CODE AS currentDistrictCode, p.BAN_CODE AS currentClassName
+          FROM TGMSTR p
+          LEFT JOIN TGSTGLOG e ON e.STG_LOG_ID = (
+              SELECT e1.STG_LOG_ID FROM TGSTGLOG e1
+              WHERE e1.LIB_ID = p.LIB_ID AND e1.TGT_ID = p.TGT_ID AND e1.FROM_STAGE IS NULL
+              ORDER BY e1.SEQ_NO, e1.STG_LOG_ID LIMIT 1
+          ) AND p.DATE_UNKNOWN_IND = 'N'
+          LEFT JOIN DAYDTL d ON d.DAY_DTL_ID = (
+              SELECT d1.DAY_DTL_ID FROM DAYDTL d1
+               WHERE d1.LIB_ID = p.LIB_ID AND d1.TGT_ID = p.TGT_ID
+               ORDER BY d1.REPORT_DATE, d1.DAY_DTL_ID LIMIT 1
+          )
+         WHERE p.LIB_ID = #{libraryId} AND p.DEL_IND = 'N'
+         <include refid="scope"><property name="a" value="p"/></include>
+    </select>
+
+    <select id="selectDistrictActivities" resultType="map">
+        SELECT s.ACT_DATE AS `date`, TIME_FORMAT(s.START_TIME, '%H:%i') AS `start`,
+               TIME_FORMAT(s.END_TIME, '%H:%i') AS endTime, s.CLASS2_CODE AS classification2,
+               s.ORG_MSTR_CODE AS regionCode, s.ORG_CODE AS districtCode, s.EMPL_ID AS memberId,
+               s.EMPL_NAME AS workerName
+          FROM ACTMSTR s
+         WHERE s.LIB_ID = #{libraryId} AND s.DEL_IND = 'N'
+           AND s.ACT_DATE BETWEEN DATE_SUB(#{from}, INTERVAL 1 DAY) AND #{to}
+         <include refid="scope"><property name="a" value="s"/></include>
+         ORDER BY s.ACT_DATE, s.ACT_ID
+    </select>
+
+    <select id="selectStageAttainments" resultType="map">
+        SELECT p.TGT_ID AS personId, e.TO_STAGE AS stageId, DATE(e.APPLY_DTTM) AS `date`,
+               e.FROM_STAGE AS fromStage, e.BASELINE_IND AS baseline, e.REASON AS reason,
+               CASE WHEN e.ORG_MSTR_CODE IS NOT NULL AND e.ORG_CODE IS NOT NULL THEN e.ORG_MSTR_CODE ELSE p.ORG_MSTR_CODE END AS regionCode,
+               CASE WHEN e.ORG_MSTR_CODE IS NOT NULL AND e.ORG_CODE IS NOT NULL THEN e.ORG_CODE ELSE p.ORG_CODE END AS districtCode,
+               COALESCE(e.BAN_CODE, p.BAN_CODE) AS className
+          FROM TGMSTR p
+          JOIN TGSTGLOG e ON e.LIB_ID = p.LIB_ID AND e.TGT_ID = p.TGT_ID
+         WHERE p.LIB_ID = #{libraryId} AND p.DEL_IND = 'N'
+           AND e.TO_STAGE IS NOT NULL
+         <include refid="scope"><property name="a" value="p"/></include>
+         ORDER BY p.TGT_ID, e.SEQ_NO, e.STG_LOG_ID
+    </select>
+
+    <select id="selectRegionalRecords" resultType="map">
+        SELECT CAST(s.ORG_ACT_ID AS CHAR) AS id, s.EMPL_ID AS memberId,
+               s.EMPL_CODE AS memberCode, s.EMPL_NAME AS memberName,
+               s.ACT_MONTH AS `month`, s.ACT_DATE AS `date`, s.PERIOD_KEY AS period,
+               s.ACT_STATUS_CODE AS status, s.ORG_MSTR_CODE AS regionCode, s.ORG_CODE AS districtCode,
+               r.ORG_MSTR_NAME_HAN AS regionName, d.ORG_NAME_HAN AS districtName,
+               DATE_FORMAT(s.SYS_MUSR_DTTM, '%Y-%m-%dT%H:%i:%s') AS version
+          FROM ORGACT s
+          <include refid="districtNames"/>
+         WHERE s.LIB_ID = #{libraryId}
+         <include refid="scope"><property name="a" value="s"/></include>
+         <if test="id != null">AND s.ORG_ACT_ID = #{id}</if>
+         <if test="month != null">AND s.ACT_MONTH = #{month}</if>
+         <if test="date != null">AND s.ACT_DATE = #{date}</if>
+         <if test="from != null">
+            AND (s.ACT_DATE &gt;= #{from} OR (s.ACT_DATE IS NULL AND s.ACT_MONTH &gt;= #{fromMonth}))
+         </if>
+         <if test="to != null">
+            AND (s.ACT_DATE &lt;= #{to} OR (s.ACT_DATE IS NULL AND s.ACT_MONTH &lt;= #{toMonth}))
+         </if>
+         ORDER BY s.PERIOD_KEY DESC, r.SORT_NO, d.SORT_NO, s.EMPL_NAME, s.ORG_ACT_ID
+    </select>
+
+    <select id="selectSocialPrograms" resultType="map">
+        SELECT m.SOC_ID AS id, m.SOC_NAME AS name, m.USE_IND AS useInd, m.ALIASES_JSON AS aliasesJson
+          FROM SOCMSTR m
+         WHERE m.LIB_ID = #{libraryId}
+         ORDER BY m.SOC_NAME, m.SOC_ID
+    </select>
+
+    <select id="selectSocialInflows" resultType="map">
+        SELECT CAST(s.SOC_DTL_ID AS CHAR) AS id, s.SOC_ID AS programId, m.SOC_NAME AS programName,
+               s.INFLOW_DATE AS `date`, s.INFLOW_NAME AS name, s.INTRO_NAME AS introducerName,
+               s.ORG_MSTR_CODE AS regionCode, s.ORG_CODE AS districtCode,
+               r.ORG_MSTR_NAME_HAN AS regionName, d.ORG_NAME_HAN AS districtName,
+               s.STATUS_CODE AS status, s.CONVERTED_DTTM AS convertedAt
+          FROM SOCDTL s
+          <include refid="districtNames"/>
+          LEFT JOIN SOCMSTR m ON m.LIB_ID = s.LIB_ID AND m.SOC_ID = s.SOC_ID
+         WHERE s.LIB_ID = #{libraryId}
+         <include refid="scope"><property name="a" value="s"/></include>
+         <if test="programId != null">AND s.SOC_ID = #{programId}</if>
+         <if test="from != null">AND s.INFLOW_DATE &gt;= #{from}</if>
+         <if test="to != null">AND s.INFLOW_DATE &lt;= #{to}</if>
+        <if test="socialStatus != null">AND s.STATUS_CODE = #{socialStatus}</if>
+        <if test="search != null">
+            AND (LOCATE(#{search}, LOWER(s.INFLOW_NAME)) &gt; 0 OR LOCATE(#{search}, LOWER(s.INTRO_NAME)) &gt; 0)
+        </if>
+         ORDER BY s.INFLOW_DATE DESC, s.SOC_DTL_ID DESC
+    </select>
+
+    <select id="selectSocialStats" resultType="map">
+        SELECT s.SOC_ID AS programId, m.SOC_NAME AS programName, DATE_FORMAT(s.INFLOW_DATE, '%Y-%m') AS `month`,
+               COUNT(*) AS total, SUM(s.STATUS_CODE = 'pending') AS pending, SUM(s.STATUS_CODE = 'converted') AS converted
+          FROM SOCDTL s
+          LEFT JOIN SOCMSTR m ON m.LIB_ID = s.LIB_ID AND m.SOC_ID = s.SOC_ID
+         WHERE s.LIB_ID = #{libraryId}
+         <include refid="scope"><property name="a" value="s"/></include>
+         <if test="programId != null">AND s.SOC_ID = #{programId}</if>
+         <if test="from != null">AND s.INFLOW_DATE &gt;= #{from}</if>
+         <if test="to != null">AND s.INFLOW_DATE &lt;= #{to}</if>
+         GROUP BY s.SOC_ID, m.SOC_NAME, DATE_FORMAT(s.INFLOW_DATE, '%Y-%m')
+         ORDER BY `month` DESC, m.SOC_NAME, s.SOC_ID
+    </select>
+
+    <sql id="auditColumns">
+        SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM
+    </sql>
+
+    <sql id="auditValues">
+        #{stamp.userId}, #{stamp.ip}, #{stamp.utcNow}, #{stamp.userId}, #{stamp.ip}, #{stamp.utcNow}
+    </sql>
+
+    <sql id="auditUpdate">
+        s.SYS_MUSR_ID = #{stamp.userId}, s.SYS_MUSR_IP = #{stamp.ip},
+        s.SYS_MUSR_DTTM = GREATEST(#{stamp.utcNow}, DATE_ADD(s.SYS_MUSR_DTTM, INTERVAL 1 SECOND))
+    </sql>
+
+    <insert id="insertMember">
+        INSERT INTO PSMSTR (EMPL_ID, EMPL_CODE, EMPL_NAME_HAN, ORG_MSTR_CODE, ORG_CODE, BAN_CODE,
+                             TITLE_CODE, JOB_CODE, STATUS_CODE, USE_IND, <include refid="auditColumns"/>)
+        VALUES (#{id}, #{code}, #{name}, #{newRegion}, #{newDistrict}, #{className},
+                #{title}, #{job}, #{status}, #{useInd}, <include refid="auditValues"/>)
+    </insert>
+
+    <update id="updateMember">
+        UPDATE PSMSTR s
+         SET s.EMPL_CODE = #{code}, s.EMPL_NAME_HAN = #{name}, s.ORG_MSTR_CODE = #{newRegion},
+             s.ORG_CODE = #{newDistrict}, s.BAN_CODE = #{className}, s.TITLE_CODE = #{title}, s.JOB_CODE = #{job},
+             s.STATUS_CODE = #{status}, s.USE_IND = #{useInd}, <include refid="auditUpdate"/>
+         WHERE s.EMPL_ID = #{id} AND s.SYS_MUSR_DTTM = #{version}
+         <include refid="scope"><property name="a" value="s"/></include>
+    </update>
+
+    <update id="archiveMember">
+        UPDATE PSMSTR s SET s.USE_IND = 'N', <include refid="auditUpdate"/>
+         WHERE s.EMPL_ID = #{id} AND s.SYS_MUSR_DTTM = #{version}
+         <include refid="scope"><property name="a" value="s"/></include>
+    </update>
+
+    <select id="countDuplicateGoals" resultType="int">
+        SELECT COUNT(*) FROM GOALMSTR
+         WHERE LIB_ID = #{libraryId}
+           AND ((#{newDistrict} IS NULL AND ORG_CODE IS NULL) OR (ORG_MSTR_CODE = #{newRegion} AND ORG_CODE = #{newDistrict}))
+           AND BAN_CODE &lt;=> #{className} AND STAGE_CODE &lt;=> #{stageId}
+           AND FROM_DATE = #{from} AND TO_DATE = #{to}
+         <if test="id != null">AND GOAL_ID != #{id}</if>
+    </select>
+
+    <insert id="insertGoal" useGeneratedKeys="true" keyProperty="id" keyColumn="GOAL_ID">
+        INSERT INTO GOALMSTR (LIB_ID, ORG_MSTR_CODE, ORG_CODE, BAN_CODE, FROM_DATE, TO_DATE,
+                              STAGE_CODE, PERIOD_CODE, TARGET_CNT, <include refid="auditColumns"/>)
+        VALUES (#{libraryId}, #{newRegion}, #{newDistrict}, #{className}, #{from}, #{to},
+                #{stageId}, #{periodUnit}, #{target}, <include refid="auditValues"/>)
+    </insert>
+
+    <update id="updateGoal">
+        UPDATE GOALMSTR s
+         SET s.ORG_MSTR_CODE = #{newRegion}, s.ORG_CODE = #{newDistrict}, s.BAN_CODE = #{className},
+             s.FROM_DATE = #{from}, s.TO_DATE = #{to}, s.STAGE_CODE = #{stageId}, s.PERIOD_CODE = #{periodUnit},
+             s.TARGET_CNT = #{target}, <include refid="auditUpdate"/>
+         WHERE s.LIB_ID = #{libraryId} AND s.GOAL_ID = #{id} AND s.SYS_MUSR_DTTM = #{version}
+         <include refid="scope"><property name="a" value="s"/></include>
+    </update>
+
+    <delete id="deleteGoal">
+        DELETE s FROM GOALMSTR s
+         WHERE s.LIB_ID = #{libraryId} AND s.GOAL_ID = #{id} AND s.SYS_MUSR_DTTM = #{version}
+         <include refid="scope"><property name="a" value="s"/></include>
+    </delete>
+
+    <insert id="insertRegionalRecord" useGeneratedKeys="true" keyProperty="id" keyColumn="ORG_ACT_ID">
+        INSERT INTO ORGACT (LIB_ID, EMPL_ID, EMPL_CODE, EMPL_NAME, ACT_MONTH, ACT_DATE, PERIOD_KEY,
+                            ACT_STATUS_CODE, ORG_MSTR_CODE, ORG_CODE, <include refid="auditColumns"/>)
+        VALUES (#{libraryId}, #{memberId}, #{memberCode}, #{memberName}, #{month}, #{date}, #{period},
+                #{status}, #{newRegion}, #{newDistrict}, <include refid="auditValues"/>)
+    </insert>
+
+    <update id="updateRegionalRecord">
+        UPDATE ORGACT s SET s.ACT_STATUS_CODE = #{status}, <include refid="auditUpdate"/>
+         WHERE s.LIB_ID = #{libraryId} AND s.ORG_ACT_ID = #{id} AND s.SYS_MUSR_DTTM = #{version}
+         <include refid="scope"><property name="a" value="s"/></include>
+    </update>
+
+    <delete id="deleteRegionalRecord">
+        DELETE s FROM ORGACT s
+         WHERE s.LIB_ID = #{libraryId} AND s.ORG_ACT_ID = #{id} AND s.SYS_MUSR_DTTM = #{version}
+         <include refid="scope"><property name="a" value="s"/></include>
+    </delete>
+</mapper>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.module.mapper.OrganizationMapper">
+
+    <!--
+        TODO(사용자 테이블 설계 후 작성): 이 모듈의 statement 는 OrganizationMapper 인터페이스의 메서드 이름과 같은 id 로 작성한다.
+        필수 statement 목록·파라미터·반환 필드는 docs/MODULE_INTEGRATION_GUIDE.md 의 해당 모듈 표를 따른다.
+        사용자 입력은 #{} 바인딩만 사용하고, districts 파라미터((regionCode, districtCode) 쌍)를 WHERE 에 반드시 포함한다.
+        결과 행은 기존 업무 형식(generic Map)으로 반환한다.
+    -->
+
+</mapper>

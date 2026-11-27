@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.module.mapper.AnalyticsMapper">
+    <sql id="scope">
+        AND (<include refid="com.smoa.module.mapper.RecordsMapper.scopeCond">
+                <property name="a" value="R"/>
+             </include>)
+        <if test="f.regionCode != null">
+            AND R.ORG_MSTR_CODE = #{f.regionCode} AND R.ORG_CODE = #{f.districtCode}
+        </if>
+    </sql>
+
+    <select id="selectPeopleMetrics" resultType="map">
+        <bind name="scopeAll" value="false"/>
+        SELECT R.ORG_MSTR_CODE AS regionCode, R.ORG_CODE AS districtCode,
+               NULLIF(R.STAGE_CODE, '') AS stage,
+               CASE WHEN R.DATE_UNKNOWN_IND = 'N' THEN DATE_FORMAT(R.FOUND_DATE, '%Y-%m-%d') END AS day,
+               COUNT(*) AS total, SUM(CASE WHEN R.STATUS_CODE = 'dropped' THEN 1 ELSE 0 END) AS dropped
+          FROM TGMSTR R
+         WHERE R.LIB_ID = #{libId} AND R.DEL_IND = 'N'
+           <include refid="scope"/>
+         GROUP BY R.ORG_MSTR_CODE, R.ORG_CODE, R.STAGE_CODE, day
+    </select>
+
+    <select id="selectActivityMetrics" resultType="map">
+        <bind name="scopeAll" value="false"/>
+        SELECT R.ORG_MSTR_CODE AS regionCode, R.ORG_CODE AS districtCode,
+               COUNT(*) AS total, SUM(R.ACT_MINUTES) AS minutes
+          FROM ACTMSTR R
+         WHERE R.LIB_ID = #{libId} AND R.DEL_IND = 'N'
+           AND R.ACT_DATE &gt;= #{f.from} AND R.ACT_DATE &lt;= #{f.to}
+           <include refid="scope"/>
+         GROUP BY R.ORG_MSTR_CODE, R.ORG_CODE
+    </select>
+<sql id="performanceGroup">
+        <choose>
+            <when test="f.mode == 'MEMBER'">
+                GROUP BY R.ORG_MSTR_CODE, R.ORG_CODE, groupKey
+            </when>
+            <when test="f.mode == 'CLASS'">
+                GROUP BY R.ORG_MSTR_CODE, R.ORG_CODE, R.BAN_CODE
+            </when>
+            <otherwise>
+                GROUP BY R.ORG_MSTR_CODE, R.ORG_CODE
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="period">
+        BETWEEN #{f.from} AND #{f.to}
+    </sql>
+
+    <sql id="performanceFilter">
+        <include refid="scope"/>
+        <if test="f.className != null"> AND R.BAN_CODE = #{f.className}</if>
+        <if test="f.classification != null"> AND R.CLASS2_CODE = #{f.classification}</if>
+    </sql>
+
+    <select id="selectPerformancePeople" resultType="map">
+        <bind name="scopeAll" value="false"/>
+        SELECT R.ORG_MSTR_CODE AS regionCode, R.ORG_CODE AS districtCode,
+               <choose>
+                   <when test="f.mode == 'MEMBER'">
+                       COALESCE(CONCAT('id:', NULLIF(R.EMPL_ID, '')), CONCAT('code:', NULLIF(R.INTRO_EMPL_CODE, '')),
+                         CONCAT('name:', NULLIF(TRIM(COALESCE(NULLIF(R.INTRO_NAME, ''), R.WORKER_NAME)), '')), '') AS groupKey,
+                       MAX(NULLIF(TRIM(COALESCE(NULLIF(R.INTRO_NAME, ''), R.WORKER_NAME)), '')) AS itemName,
+                   </when>
+                   <when test="f.mode == 'CLASS'">COALESCE(R.BAN_CODE, '') AS groupKey,</when>
+                   <otherwise>'' AS groupKey,</otherwise>
+               </choose>
+               SUM(CASE WHEN R.FOUND_DATE <include refid="period"/> AND R.DATE_UNKNOWN_IND = 'N' THEN 1 ELSE 0 END) AS findings,
+               SUM(CASE WHEN R.MANPIK_DATE <include refid="period"/> THEN 1 ELSE 0 END) AS manpik,
+               SUM(CASE WHEN R.FIND_A_DATE <include refid="period"/> THEN 1 ELSE 0 END) AS findA,
+               SUM(CASE WHEN R.HAB_B_DATE <include refid="period"/> THEN 1 ELSE 0 END) AS habB,
+               SUM(CASE WHEN R.HAB_A_DATE <include refid="period"/> THEN 1 ELSE 0 END) AS habA,
+               SUM(CASE WHEN R.YOUNG_TTA_DATE <include refid="period"/> THEN 1 ELSE 0 END) AS youngTta,
+               SUM(CASE WHEN R.BOKSHIN_DATE <include refid="period"/> THEN 1 ELSE 0 END) AS bokshin,
+               SUM(CASE WHEN R.CARD_RECEIVED_DATE <include refid="period"/> THEN 1 ELSE 0 END) AS cardReceived,
+               SUM(CASE WHEN R.CENTER_REGISTERED_DATE <include refid="period"/> THEN 1 ELSE 0 END) AS centerRegistered
+          FROM TGMSTR R
+         WHERE R.LIB_ID = #{libId} AND R.DEL_IND = 'N'
+           AND (R.FOUND_DATE <include refid="period"/>
+             OR R.MANPIK_DATE <include refid="period"/> OR R.FIND_A_DATE <include refid="period"/>
+             OR R.HAB_B_DATE <include refid="period"/> OR R.HAB_A_DATE <include refid="period"/>
+             OR R.YOUNG_TTA_DATE <include refid="period"/> OR R.BOKSHIN_DATE <include refid="period"/>
+             OR R.CARD_RECEIVED_DATE <include refid="period"/> OR R.CENTER_REGISTERED_DATE <include refid="period"/>)
+           <include refid="performanceFilter"/>
+         <include refid="performanceGroup"/>
+    </select>
+
+    <select id="selectPerformanceActivity" resultType="map">
+        <bind name="scopeAll" value="false"/>
+        SELECT R.ORG_MSTR_CODE AS regionCode, R.ORG_CODE AS districtCode,
+               <choose>
+                   <when test="f.mode == 'MEMBER'">
+                       COALESCE(CONCAT('id:', NULLIF(R.EMPL_ID, '')), CONCAT('code:', NULLIF(R.EMPL_CODE, '')),
+                         CONCAT('name:', NULLIF(TRIM(R.EMPL_NAME), '')), '') AS groupKey,
+                       MAX(NULLIF(TRIM(R.EMPL_NAME), '')) AS itemName,
+                   </when>
+                   <when test="f.mode == 'CLASS'">COALESCE(R.BAN_CODE, '') AS groupKey,</when>
+                   <otherwise>'' AS groupKey,</otherwise>
+               </choose>
+               COUNT(*) AS activities, SUM(R.ACT_MINUTES) AS minutes
+          FROM ACTMSTR R
+         WHERE R.LIB_ID = #{libId} AND R.DEL_IND = 'N' AND R.ACT_DATE <include refid="period"/>
+           <include refid="performanceFilter"/>
+         <include refid="performanceGroup"/>
+    </select>
+</mapper>

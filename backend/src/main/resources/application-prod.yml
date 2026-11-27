@@ -1,0 +1,29 @@
+# 운영. log4jdbc를 쓰지 않고 일반 MariaDB 드라이버를 직접 사용한다. 접속 정보는 환경 변수로만 받는다.
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${SMOA_DB_HOST}:${SMOA_DB_PORT}/${SMOA_DB_NAME}
+    username: ${SMOA_DB_USER}
+    password: ${SMOA_DB_PASSWORD}
+    hikari:
+      pool-name: smoa-prod
+      maximum-pool-size: 5
+      minimum-idle: 1
+
+server:
+  address: 127.0.0.1          # Nginx가 같은 서버에서 프록시한다
+  forward-headers-strategy: native
+  servlet:
+    session:
+      cookie:
+        secure: true
+
+logging:
+  level:
+    jdbc.sqltiming: 'OFF'
+
+smoa:
+  security:
+    protect-app-shell: true
+  otp:
+    required: true

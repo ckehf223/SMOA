@@ -1,0 +1,1134 @@
+{
+  "source": "existing SMOA web virtual store only",
+  "routeCount": 138,
+  "routes": [
+    {
+      "module": "business",
+      "method": "GET",
+      "path": "/api/dashboard",
+      "screen": "dashboard",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "GET",
+      "path": "/api/dashboard/overview",
+      "screen": "dashboard",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "GET",
+      "path": "/api/people",
+      "screen": "people",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "GET",
+      "path": "/api/people/export",
+      "screen": "people",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "POST",
+      "path": "/api/people",
+      "screen": "people",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "PUT",
+      "path": "/api/people/:id",
+      "screen": "people",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "GET",
+      "path": "/api/history/recoverable",
+      "screen": "history",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "POST",
+      "path": "/api/history/recoverable/:id/restore",
+      "screen": "history",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "GET",
+      "path": "/api/people/options",
+      "screen": "people",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "GET",
+      "path": "/api/people/:id/detail",
+      "screen": "people",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "POST",
+      "path": "/api/people/:id/lifecycle",
+      "screen": "people",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "business",
+      "method": "DELETE",
+      "path": "/api/people/:id",
+      "screen": "people",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "GET",
+      "path": "/api/organization",
+      "screen": "organization",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "GET",
+      "path": "/api/organization/export",
+      "screen": "organization",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "GET",
+      "path": "/api/organization/members/:id/transfers",
+      "screen": "organization",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/organization/nodes",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "PUT",
+      "path": "/api/organization/nodes/:id",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "DELETE",
+      "path": "/api/organization/nodes/:id",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/organization/members",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "PUT",
+      "path": "/api/organization/members/:id",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "DELETE",
+      "path": "/api/organization/members/:id",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/organization/classes",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "GET",
+      "path": "/api/organization/template",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/organization/import/preview",
+      "screen": "organization",
+      "action": "write",
+      "binary": true
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/organization/import/apply",
+      "screen": "organization",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "GET",
+      "path": "/api/goals",
+      "screen": "goals",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "GET",
+      "path": "/api/goals/export",
+      "screen": "goals",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "GET",
+      "path": "/api/goals/matrix",
+      "screen": "goals",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/goals/batch",
+      "screen": "goals",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/goals/copy/preview",
+      "screen": "goals",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/goals/copy/apply",
+      "screen": "goals",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "POST",
+      "path": "/api/goals",
+      "screen": "goals",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "PUT",
+      "path": "/api/goals/:id",
+      "screen": "goals",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "organization",
+      "method": "DELETE",
+      "path": "/api/goals/:id",
+      "screen": "goals",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "GET",
+      "path": "/api/calling/records",
+      "screen": "callingManage",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "GET",
+      "path": "/api/calling/people",
+      "screen": "callingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "POST",
+      "path": "/api/calling/records",
+      "screen": "callingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "PUT",
+      "path": "/api/calling/records/:id",
+      "screen": "callingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "DELETE",
+      "path": "/api/calling/records/:id",
+      "screen": "callingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "GET",
+      "path": "/api/calling/records/export",
+      "screen": "callingManage",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "GET",
+      "path": "/api/calling/template",
+      "screen": "callingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "POST",
+      "path": "/api/calling/import/preview",
+      "screen": "callingManage",
+      "action": "write",
+      "binary": true
+    },
+    {
+      "module": "calling",
+      "method": "POST",
+      "path": "/api/calling/report/preview",
+      "screen": "callingManage",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "POST",
+      "path": "/api/calling/import/apply",
+      "screen": "callingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "POST",
+      "path": "/api/calling/report/export",
+      "screen": "callingManage",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "GET",
+      "path": "/api/calling/stats",
+      "screen": "callingStats",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "calling",
+      "method": "GET",
+      "path": "/api/calling/stats/export",
+      "screen": "callingStats",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "GET",
+      "path": "/api/socialing/roster",
+      "screen": "socialingManage",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "GET",
+      "path": "/api/socialing/roster/export",
+      "screen": "socialingManage",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "GET",
+      "path": "/api/socialing/stats",
+      "screen": "socialingStats",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "GET",
+      "path": "/api/socialing/stats/export",
+      "screen": "socialingStats",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "POST",
+      "path": "/api/socialing/programs",
+      "screen": "socialingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "PUT",
+      "path": "/api/socialing/programs/:id",
+      "screen": "socialingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "POST",
+      "path": "/api/socialing/intakes",
+      "screen": "socialingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "PUT",
+      "path": "/api/socialing/intakes/:id",
+      "screen": "socialingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "DELETE",
+      "path": "/api/socialing/intakes/:id",
+      "screen": "socialingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "GET",
+      "path": "/api/socialing/intakes/:id/candidates",
+      "screen": "socialingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "POST",
+      "path": "/api/socialing/intakes/:id/promote",
+      "screen": "socialingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "socialing",
+      "method": "GET",
+      "path": "/api/socialing/introducers",
+      "screen": "socialingManage",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "GET",
+      "path": "/api/daily/info",
+      "screen": "daily",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "PUT",
+      "path": "/api/daily/settings",
+      "screen": "daily",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/convert",
+      "screen": "daily",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "GET",
+      "path": "/api/daily/conversions/:id/workbook",
+      "screen": "daily",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/import-preview",
+      "screen": "daily",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/import-file",
+      "screen": "daily",
+      "action": "write",
+      "binary": true
+    },
+    {
+      "module": "daily",
+      "method": "GET",
+      "path": "/api/daily/imports/:id/details",
+      "screen": "daily",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/apply",
+      "screen": "daily",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/text-preview",
+      "screen": "daily",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/text-apply",
+      "screen": "daily",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/changes-preview",
+      "screen": "daily",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "GET",
+      "path": "/api/daily/changes/:id/workbook",
+      "screen": "daily",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "GET",
+      "path": "/api/daily/analytics",
+      "screen": "daily",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/notice",
+      "screen": "daily",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "GET",
+      "path": "/api/daily/notices/:id/workbook",
+      "screen": "daily",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "daily",
+      "method": "POST",
+      "path": "/api/daily/conversions/:id/cumulative",
+      "screen": "daily",
+      "action": "export",
+      "binary": true
+    },
+    {
+      "module": "reports",
+      "method": "GET",
+      "path": "/api/reports/info",
+      "screen": "reports",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "reports",
+      "method": "GET",
+      "path": "/api/reports/summary",
+      "screen": "reports",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "reports",
+      "method": "GET",
+      "path": "/api/reports/export",
+      "screen": "reports",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "reports",
+      "method": "GET",
+      "path": "/api/reports/templates/:id",
+      "screen": "reports",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "reports",
+      "method": "GET",
+      "path": "/api/reports/daily-totals",
+      "screen": "reports",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "reports",
+      "method": "POST",
+      "path": "/api/reports/import-preview",
+      "screen": "reports",
+      "action": "write",
+      "binary": true
+    },
+    {
+      "module": "reports",
+      "method": "POST",
+      "path": "/api/reports/target-update-preview",
+      "screen": "reports",
+      "action": "write",
+      "binary": true
+    },
+    {
+      "module": "reports",
+      "method": "POST",
+      "path": "/api/reports/apply",
+      "screen": "reports",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/activities",
+      "screen": "activities",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/activities/options",
+      "screen": "activities",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/activities/export",
+      "screen": "activities",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "POST",
+      "path": "/api/activities",
+      "screen": "activities",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "PUT",
+      "path": "/api/activities/:id",
+      "screen": "activities",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "POST",
+      "path": "/api/activities/delete",
+      "screen": "activities",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/regional-activity",
+      "screen": "regionalActivity",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/regional-activity/export",
+      "screen": "regionalActivity",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "POST",
+      "path": "/api/regional-activity/save",
+      "screen": "regionalActivity",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "POST",
+      "path": "/api/regional-activity/remove",
+      "screen": "regionalActivity",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "POST",
+      "path": "/api/regional-activity/import-preview",
+      "screen": "regionalActivity",
+      "action": "write",
+      "binary": true
+    },
+    {
+      "module": "records",
+      "method": "POST",
+      "path": "/api/regional-activity/import-apply",
+      "screen": "regionalActivity",
+      "action": "write",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/stage-movements",
+      "screen": "stages",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/stage-movements/export",
+      "screen": "stages",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/history",
+      "screen": "history",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "records",
+      "method": "GET",
+      "path": "/api/history/export",
+      "screen": "history",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/finding-stats",
+      "screen": "findingStats",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/finding-stats/export",
+      "screen": "findingStats",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/diagnostics",
+      "screen": "diagnostics",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/diagnostics/export",
+      "screen": "diagnostics",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/stage-performance",
+      "screen": "stagePerformance",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/stage-performance/details",
+      "screen": "stagePerformance",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/stage-performance/export",
+      "screen": "stagePerformance",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/full-time",
+      "screen": "memberData",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/full-time/export",
+      "screen": "memberData",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/region-data",
+      "screen": "regionData",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/region-data/export",
+      "screen": "regionData",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/member-data",
+      "screen": "memberData",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/member-data/export",
+      "screen": "memberData",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/class-data",
+      "screen": "classData",
+      "action": "read",
+      "binary": false
+    },
+    {
+      "module": "analytics",
+      "method": "GET",
+      "path": "/api/analytics/class-data/export",
+      "screen": "classData",
+      "action": "export",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "GET",
+      "path": "/api/admin/users",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "POST",
+      "path": "/api/admin/users",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "PATCH",
+      "path": "/api/admin/users/:id",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "POST",
+      "path": "/api/admin/users/:id/password",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "GET",
+      "path": "/api/admin/permissions",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "PUT",
+      "path": "/api/admin/permissions/:role",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "GET",
+      "path": "/api/admin/codes",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "POST",
+      "path": "/api/admin/codes/stages",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "PATCH",
+      "path": "/api/admin/codes/stages/:id",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "POST",
+      "path": "/api/admin/codes/groups",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "PATCH",
+      "path": "/api/admin/codes/groups/:id",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "DELETE",
+      "path": "/api/admin/codes/groups/:id",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "POST",
+      "path": "/api/admin/codes/groups/:id/items",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "PATCH",
+      "path": "/api/admin/codes/groups/:id/items/:itemid",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "DELETE",
+      "path": "/api/admin/codes/groups/:id/items/:itemid",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "GET",
+      "path": "/api/admin/codes/export",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "POST",
+      "path": "/api/admin/codes/import/preview",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": true
+    },
+    {
+      "module": "admin",
+      "method": "POST",
+      "path": "/api/admin/codes/import/apply",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "GET",
+      "path": "/api/admin/fields",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "POST",
+      "path": "/api/admin/fields",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "PATCH",
+      "path": "/api/admin/fields/:id",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "DELETE",
+      "path": "/api/admin/fields/:id",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "GET",
+      "path": "/api/admin/settings",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    },
+    {
+      "module": "admin",
+      "method": "PUT",
+      "path": "/api/admin/settings",
+      "screen": null,
+      "action": null,
+      "auth": "admin",
+      "binary": false
+    }
+  ]
+}

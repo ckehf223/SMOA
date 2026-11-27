@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.permission.persistence.PackageMapper">
+
+    <resultMap id="packageRow" type="com.smoa.permission.persistence.PackageRow">
+        <id property="packageId" column="packageId"/>
+        <result property="name" column="name"/>
+        <result property="nameKey" column="nameKey"/>
+        <result property="active" column="active"/>
+        <result property="superAdmin" column="superAdmin"/>
+        <result property="scopeType" column="scopeType"/>
+    </resultMap>
+
+    <resultMap id="packagePermissionRow" type="com.smoa.permission.persistence.PackagePermissionRow">
+        <result property="packageId" column="packageId"/>
+        <result property="programId" column="programId"/>
+        <result property="accessAllowed" column="accessAllowed"/>
+        <result property="readAllowed" column="readAllowed"/>
+        <result property="writeAllowed" column="writeAllowed"/>
+        <result property="exportAllowed" column="exportAllowed"/>
+    </resultMap>
+
+    <!-- 구역은 지역코드+구역코드 두 컬럼. regionCode 없이 districtCode 만으로 식별하지 않는다. -->
+    <resultMap id="packageDistrictRow" type="com.smoa.permission.persistence.PackageDistrictRow">
+        <result property="packageId" column="packageId"/>
+        <result property="regionCode" column="regionCode"/>
+        <result property="districtCode" column="districtCode"/>
+    </resultMap>
+
+    <sql id="packageColumns">
+        A.AUTH_CODE AS packageId,
+        A.AUTH_NAME_HAN AS name,
+        LOWER(TRIM(A.AUTH_NAME_HAN)) AS nameKey,
+        (A.USE_IND = 'Y') AS active,
+        (A.SUPER_ADMIN_IND = 'Y') AS superAdmin,
+        A.DATA_SCOPE_CODE AS scopeType
+    </sql>
+
+    <select id="selectPackageById" resultMap="packageRow">
+        SELECT <include refid="packageColumns"/>
+          FROM AUTHMSTR A
+         WHERE A.AUTH_CODE = #{packageId}
+    </select>
+
+    <select id="selectPackageByNameKey" resultMap="packageRow">
+        SELECT <include refid="packageColumns"/>
+          FROM AUTHMSTR A
+         WHERE LOWER(TRIM(A.AUTH_NAME_HAN)) = #{nameKey}
+         ORDER BY A.AUTH_CODE
+         LIMIT 1
+    </select>
+
+    <select id="selectAllPackages" resultMap="packageRow">
+        SELECT <include refid="packageColumns"/>
+          FROM AUTHMSTR A
+         ORDER BY LOWER(TRIM(A.AUTH_NAME_HAN)), A.AUTH_CODE
+    </select>
+
+    <select id="selectPermissionsByPackageId" resultMap="packagePermissionRow">
+        SELECT D.AUTH_CODE AS packageId,
+               D.PGM_ID AS programId,
+               (D.ACCESS_IND = 'Y') AS accessAllowed,
+               (D.READ_IND = 'Y') AS readAllowed,
+               (D.WRITE_IND = 'Y') AS writeAllowed,
+               (D.EXPORT_IND = 'Y') AS exportAllowed
+          FROM AUTHDTL D
+         WHERE D.AUTH_CODE = #{packageId}
+         ORDER BY D.PGM_ID
+    </select>
+
+    <select id="selectDistrictsByPackageId" resultMap="packageDistrictRow">
+        SELECT O.AUTH_CODE AS packageId,
+               O.ORG_MSTR_CODE AS regionCode,
+               O.ORG_CODE AS districtCode
+          FROM AUTHORG O
+         WHERE O.AUTH_CODE = #{packageId}
+         ORDER BY O.ORG_MSTR_CODE, O.ORG_CODE
+    </select>
+
+    <insert id="insertPackage">
+        INSERT INTO AUTHMSTR
+               (AUTH_CODE, AUTH_NAME_HAN, DATA_SCOPE_CODE, SUPER_ADMIN_IND, USE_IND,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES (#{packageId}, #{name}, #{scopeType}, IF(#{superAdmin}, 'Y', 'N'), IF(#{active}, 'Y', 'N'),
+                #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+    <!-- SUPER_ADMIN_IND 는 이 문장으로 바꾸지 않는다(보호 속성). -->
+    <update id="updatePackage">
+        UPDATE AUTHMSTR
+           SET AUTH_NAME_HAN = #{name},
+               DATA_SCOPE_CODE = #{scopeType},
+               USE_IND = IF(#{active}, 'Y', 'N'),
+               SYS_MUSR_ID = #{sysUserId},
+               SYS_MUSR_IP = #{sysIp},
+               SYS_MUSR_DTTM = #{sysAt}
+         WHERE AUTH_CODE = #{packageId}
+    </update>
+
+    <delete id="deletePackage">
+        DELETE FROM AUTHMSTR WHERE AUTH_CODE = #{packageId}
+    </delete>
+
+    <delete id="deletePermissionsByPackageId">
+        DELETE FROM AUTHDTL WHERE AUTH_CODE = #{packageId}
+    </delete>
+
+    <insert id="insertPermission">
+        INSERT INTO AUTHDTL
+               (AUTH_CODE, PGM_ID, ACCESS_IND, READ_IND, WRITE_IND, EXPORT_IND,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES (#{packageId}, #{programId}, IF(#{accessAllowed}, 'Y', 'N'), IF(#{readAllowed}, 'Y', 'N'),
+                IF(#{writeAllowed}, 'Y', 'N'), IF(#{exportAllowed}, 'Y', 'N'),
+                #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+    <delete id="deleteDistrictsByPackageId">
+        DELETE FROM AUTHORG WHERE AUTH_CODE = #{packageId}
+    </delete>
+
+    <insert id="insertDistrict">
+        INSERT INTO AUTHORG
+               (AUTH_CODE, ORG_MSTR_CODE, ORG_CODE,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES (#{packageId}, #{regionCode}, #{districtCode},
+                #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+</mapper>

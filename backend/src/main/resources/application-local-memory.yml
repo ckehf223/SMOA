@@ -1,0 +1,21 @@
+# 명시적 로컬 메모리 모드: 가상 자료 전용. 서버를 종료하면 모든 계정·자료가 사라진다.
+# DB를 사용하지 않으므로 DataSource/MyBatis 자동 구성을 제외한다.
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+      - org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
+
+server:
+  address: 127.0.0.1
+  servlet:
+    session:
+      cookie:
+        secure: false   # HTTP 로컬 개발에서만 허용
+
+smoa:
+  bootstrap:
+    # 최초 총관리자. 환경 변수로만 지정한다(기본 공용 비밀번호 없음). 둘 다 비어 있으면 계정이 없다.
+    username: ${SMOA_BOOTSTRAP_USERNAME:}
+    password: ${SMOA_BOOTSTRAP_PASSWORD:}

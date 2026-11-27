@@ -1,0 +1,1181 @@
+{
+  "sourceVersion": "4.0.41",
+  "synthetic": true,
+  "input": {
+    "people": [
+      {
+        "id": "fa38e332-9381-4d9e-8fa3-d27696c29852",
+        "code": "SYN-1",
+        "name": "가상동명이인",
+        "gender": "미입력",
+        "age": "",
+        "ageAsOf": "2026-11-01",
+        "time": "",
+        "classification1": "개척",
+        "classification2": "노방",
+        "place": "",
+        "tool": "",
+        "residence": "",
+        "teacher": "",
+        "reason": "",
+        "worker": "가상인도자",
+        "introducerId": "",
+        "introducerSnapshot": null,
+        "region": "1구역",
+        "className": "",
+        "employment": "미입력",
+        "stage": "찾B",
+        "date": "2026-11-01",
+        "appointment": "",
+        "notes": "",
+        "custom": {},
+        "createdAt": "2026-11-26T11:51:19.062Z",
+        "updatedAt": "2026-11-26T11:51:19.062Z",
+        "activities": [],
+        "transitions": [
+          {
+            "id": "f8244ce1-3ae4-495c-8f25-1becab58598b",
+            "from": null,
+            "to": "찾B",
+            "effectiveLocal": "2026-11-01T00:00",
+            "recordedAt": "2026-11-26T11:51:19.062Z",
+            "actor": "검증",
+            "fromName": "",
+            "toName": "찾B",
+            "reason": "최초 등록",
+            "region": "1구역",
+            "className": "",
+            "worker": "가상인도자",
+            "memberId": "",
+            "workerId": "",
+            "employment": "미입력"
+          }
+        ],
+        "lifecycle": [],
+        "status": "active"
+      },
+      {
+        "id": "ea85c524-b9ea-4921-9471-3ac9d95e565e",
+        "code": "SYN-2",
+        "name": "가상동명이인",
+        "gender": "미입력",
+        "age": "",
+        "ageAsOf": "2026-11-01",
+        "time": "",
+        "classification1": "개척",
+        "classification2": "노방",
+        "place": "",
+        "tool": "",
+        "residence": "",
+        "teacher": "",
+        "reason": "",
+        "worker": "가상인도자",
+        "introducerId": "",
+        "introducerSnapshot": null,
+        "region": "1구역",
+        "className": "",
+        "employment": "미입력",
+        "stage": "찾B",
+        "date": "",
+        "dateUnknown": true,
+        "appointment": "",
+        "notes": "",
+        "custom": {},
+        "createdAt": "2026-11-26T11:51:19.062Z",
+        "updatedAt": "2026-11-26T11:51:19.062Z",
+        "activities": [],
+        "transitions": [
+          {
+            "id": "ed4206e4-99d5-464a-b15e-798bbc4466a6",
+            "from": null,
+            "to": "찾B",
+            "effectiveLocal": "2026-11-01T00:00",
+            "recordedAt": "2026-11-26T11:51:19.063Z",
+            "actor": "검증",
+            "fromName": "",
+            "toName": "찾B",
+            "reason": "최초 등록",
+            "region": "1구역",
+            "className": "",
+            "worker": "가상인도자",
+            "memberId": "",
+            "workerId": "",
+            "employment": "미입력"
+          }
+        ],
+        "lifecycle": [],
+        "status": "active"
+      }
+    ],
+    "records": [
+      {
+        "id": "891529a4-f581-4fb0-bbc2-fdf0874e448a",
+        "personId": "fa38e332-9381-4d9e-8fa3-d27696c29852",
+        "date": "2026-11-03",
+        "time": "",
+        "caller": "가상콜러A",
+        "round": 1,
+        "result": "만픽",
+        "notes": "줄1\n줄2 / 보존",
+        "personName": "가상동명이인",
+        "personCode": "SYN-1",
+        "introducer": "가상인도자",
+        "area": "1구역",
+        "findingDate": "2026-11-01"
+      },
+      {
+        "id": "92441b76-3e32-4256-ac0c-8c742f0bef42",
+        "personId": "fa38e332-9381-4d9e-8fa3-d27696c29852",
+        "date": "2026-11-04",
+        "time": "00:00",
+        "caller": "가상콜러B",
+        "round": 2,
+        "result": "부재",
+        "notes": "",
+        "personName": "가상동명이인",
+        "personCode": "SYN-1",
+        "introducer": "가상인도자",
+        "area": "1구역",
+        "findingDate": "2026-11-01"
+      },
+      {
+        "id": "8473fe27-cab0-4f3e-8b5c-aea8321f1522",
+        "personId": "fa38e332-9381-4d9e-8fa3-d27696c29852",
+        "date": "2026-11-05",
+        "time": "15:30",
+        "caller": "가상콜러A",
+        "round": 3,
+        "result": "만픽",
+        "notes": "",
+        "personName": "가상동명이인",
+        "personCode": "SYN-1",
+        "introducer": "가상인도자",
+        "area": "1구역",
+        "findingDate": "2026-11-01"
+      },
+      {
+        "id": "f7e7b31c-3b9c-48a9-ada1-3f6f218aba12",
+        "personId": "ea85c524-b9ea-4921-9471-3ac9d95e565e",
+        "date": "2026-11-04",
+        "time": "18:10",
+        "caller": "가상콜러B",
+        "round": 5,
+        "roundName": "수능인원",
+        "result": "거절",
+        "notes": "",
+        "personName": "가상동명이인",
+        "personCode": "SYN-2",
+        "introducer": "가상인도자",
+        "area": "1구역",
+        "findingDate": ""
+      },
+      {
+        "id": "9be0c239-204c-4d2b-ab35-56afc4fd4335",
+        "personId": "ea85c524-b9ea-4921-9471-3ac9d95e565e",
+        "date": "2026-11-05",
+        "time": "",
+        "caller": "가상콜러B",
+        "round": 5,
+        "roundName": "7차",
+        "result": "기타",
+        "notes": "",
+        "personName": "가상동명이인",
+        "personCode": "SYN-2",
+        "introducer": "가상인도자",
+        "area": "1구역",
+        "findingDate": ""
+      },
+      {
+        "id": "edbae52f-9a2d-4f62-a575-ae554ef89579",
+        "personId": "",
+        "date": "2026-11-05",
+        "time": "09:30",
+        "caller": "가상콜러A",
+        "round": 5,
+        "result": "재통화",
+        "notes": "미연결",
+        "personName": "미연결합성",
+        "personCode": "",
+        "introducer": "",
+        "area": "2구역",
+        "findingDate": ""
+      }
+    ]
+  },
+  "cases": [
+    {
+      "query": {},
+      "expected": {
+        "totals": {
+          "count": 6,
+          "successes": 2,
+          "rate": 33.333333333333336,
+          "targets": 3,
+          "callerCount": 2
+        },
+        "missingTime": 2,
+        "byHour": [
+          {
+            "hour": 0,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "hour": 9,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "hour": 15,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "hour": 18,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCaller": [
+          {
+            "caller": "가상콜러A",
+            "count": 3,
+            "successes": 2,
+            "rate": 66.66666666666667
+          },
+          {
+            "caller": "가상콜러B",
+            "count": 3,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byRound": [
+          {
+            "round": 0,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": 1,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "round": 2,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": 3,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "round": 4,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": "7차",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": "수능인원",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": 5,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerHour": [
+          {
+            "caller": "가상콜러A",
+            "hour": 9,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러A",
+            "hour": 15,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러B",
+            "hour": 0,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "hour": 18,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerRound": [
+          {
+            "caller": "가상콜러A",
+            "round": 1,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러A",
+            "round": 3,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러A",
+            "round": 5,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "round": 2,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "round": "7차",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "round": "수능인원",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "lag": {
+          "count": 1,
+          "missing": 0,
+          "average": 2,
+          "median": 2,
+          "p80": 2,
+          "within": [
+            {
+              "days": 0,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 1,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 3,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 7,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 14,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 30,
+              "count": 1,
+              "rate": 100
+            }
+          ]
+        },
+        "reportText": "< 콜링 결과 보고 >\n날짜: 전체 기간\n\n✔️1차콜링 1건 중 1건 연결\n✔️2차콜링 1건 중 0건 연결\n✔️3차콜링 1건 중 1건 연결\n✔️7차콜링 1건 중 0건 연결\n✔️수능인원콜링 1건 중 0건 연결\n✔️추가회차콜링 1건 중 0건 연결\n\n\n\n🔺 총 6건 중 2건 연결 (33%)"
+      }
+    },
+    {
+      "query": {
+        "from": "2026-11-04",
+        "to": "2026-11-05"
+      },
+      "expected": {
+        "totals": {
+          "count": 5,
+          "successes": 1,
+          "rate": 20,
+          "targets": 3,
+          "callerCount": 2
+        },
+        "missingTime": 1,
+        "byHour": [
+          {
+            "hour": 0,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "hour": 9,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "hour": 15,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "hour": 18,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCaller": [
+          {
+            "caller": "가상콜러A",
+            "count": 2,
+            "successes": 1,
+            "rate": 50
+          },
+          {
+            "caller": "가상콜러B",
+            "count": 3,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byRound": [
+          {
+            "round": 0,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": 1,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": 2,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": 3,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "round": 4,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": "7차",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": "수능인원",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": 5,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerHour": [
+          {
+            "caller": "가상콜러A",
+            "hour": 9,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러A",
+            "hour": 15,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러B",
+            "hour": 0,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "hour": 18,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerRound": [
+          {
+            "caller": "가상콜러A",
+            "round": 3,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러A",
+            "round": 5,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "round": 2,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "round": "7차",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "round": "수능인원",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "lag": {
+          "count": 1,
+          "missing": 0,
+          "average": 4,
+          "median": 4,
+          "p80": 4,
+          "within": [
+            {
+              "days": 0,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 1,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 3,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 7,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 14,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 30,
+              "count": 1,
+              "rate": 100
+            }
+          ]
+        },
+        "reportText": "< 콜링 결과 보고 >\n날짜: 2026-11-04 ~ 2026-11-05\n\n✔️2차콜링 1건 중 0건 연결\n✔️3차콜링 1건 중 1건 연결\n✔️7차콜링 1건 중 0건 연결\n✔️수능인원콜링 1건 중 0건 연결\n✔️추가회차콜링 1건 중 0건 연결\n\n\n\n🔺 총 5건 중 1건 연결 (20%)"
+      }
+    },
+    {
+      "query": {
+        "caller": "가상콜러A"
+      },
+      "expected": {
+        "totals": {
+          "count": 3,
+          "successes": 2,
+          "rate": 66.66666666666667,
+          "targets": 2,
+          "callerCount": 1
+        },
+        "missingTime": 1,
+        "byHour": [
+          {
+            "hour": 9,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "hour": 15,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          }
+        ],
+        "byCaller": [
+          {
+            "caller": "가상콜러A",
+            "count": 3,
+            "successes": 2,
+            "rate": 66.66666666666667
+          }
+        ],
+        "byRound": [
+          {
+            "round": 0,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": 1,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "round": 2,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": 3,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "round": 4,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": "7차",
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": "수능인원",
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": 5,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerHour": [
+          {
+            "caller": "가상콜러A",
+            "hour": 9,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러A",
+            "hour": 15,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          }
+        ],
+        "byCallerRound": [
+          {
+            "caller": "가상콜러A",
+            "round": 1,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러A",
+            "round": 3,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러A",
+            "round": 5,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "lag": {
+          "count": 1,
+          "missing": 0,
+          "average": 2,
+          "median": 2,
+          "p80": 2,
+          "within": [
+            {
+              "days": 0,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 1,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 3,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 7,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 14,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 30,
+              "count": 1,
+              "rate": 100
+            }
+          ]
+        },
+        "reportText": "< 콜링 결과 보고 >\n날짜: 전체 기간\n\n✔️1차콜링 1건 중 1건 연결\n✔️3차콜링 1건 중 1건 연결\n✔️추가회차콜링 1건 중 0건 연결\n\n\n\n🔺 총 3건 중 2건 연결 (67%)"
+      }
+    },
+    {
+      "query": {
+        "round": "수능인원"
+      },
+      "expected": {
+        "totals": {
+          "count": 1,
+          "successes": 0,
+          "rate": 0,
+          "targets": 1,
+          "callerCount": 1
+        },
+        "missingTime": 0,
+        "byHour": [
+          {
+            "hour": 18,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCaller": [
+          {
+            "caller": "가상콜러B",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byRound": [
+          {
+            "round": "수능인원",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerHour": [
+          {
+            "caller": "가상콜러B",
+            "hour": 18,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerRound": [
+          {
+            "caller": "가상콜러B",
+            "round": "수능인원",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "lag": {
+          "count": 0,
+          "missing": 0,
+          "average": null,
+          "median": null,
+          "p80": null,
+          "within": [
+            {
+              "days": 0,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 1,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 3,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 7,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 14,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 30,
+              "count": 0,
+              "rate": null
+            }
+          ]
+        },
+        "reportText": "< 콜링 결과 보고 >\n날짜: 전체 기간\n\n✔️수능인원콜링 1건 중 0건 연결\n\n\n\n🔺 총 1건 중 0건 연결 (0%)"
+      }
+    },
+    {
+      "query": {
+        "round": "7차"
+      },
+      "expected": {
+        "totals": {
+          "count": 1,
+          "successes": 0,
+          "rate": 0,
+          "targets": 1,
+          "callerCount": 1
+        },
+        "missingTime": 1,
+        "byHour": [],
+        "byCaller": [
+          {
+            "caller": "가상콜러B",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byRound": [
+          {
+            "round": "7차",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerHour": [],
+        "byCallerRound": [
+          {
+            "caller": "가상콜러B",
+            "round": "7차",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "lag": {
+          "count": 0,
+          "missing": 0,
+          "average": null,
+          "median": null,
+          "p80": null,
+          "within": [
+            {
+              "days": 0,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 1,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 3,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 7,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 14,
+              "count": 0,
+              "rate": null
+            },
+            {
+              "days": 30,
+              "count": 0,
+              "rate": null
+            }
+          ]
+        },
+        "reportText": "< 콜링 결과 보고 >\n날짜: 전체 기간\n\n✔️7차콜링 1건 중 0건 연결\n\n\n\n🔺 총 1건 중 0건 연결 (0%)"
+      }
+    },
+    {
+      "query": {
+        "search": "가상 동명이인"
+      },
+      "expected": {
+        "totals": {
+          "count": 5,
+          "successes": 2,
+          "rate": 40,
+          "targets": 2,
+          "callerCount": 2
+        },
+        "missingTime": 2,
+        "byHour": [
+          {
+            "hour": 0,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "hour": 15,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "hour": 18,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCaller": [
+          {
+            "caller": "가상콜러A",
+            "count": 2,
+            "successes": 2,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러B",
+            "count": 3,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byRound": [
+          {
+            "round": 0,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": 1,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "round": 2,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": 3,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "round": 4,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          },
+          {
+            "round": "7차",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": "수능인원",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "round": 5,
+            "count": 0,
+            "successes": 0,
+            "rate": null
+          }
+        ],
+        "byCallerHour": [
+          {
+            "caller": "가상콜러A",
+            "hour": 15,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러B",
+            "hour": 0,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "hour": 18,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "byCallerRound": [
+          {
+            "caller": "가상콜러A",
+            "round": 1,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러A",
+            "round": 3,
+            "count": 1,
+            "successes": 1,
+            "rate": 100
+          },
+          {
+            "caller": "가상콜러B",
+            "round": 2,
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "round": "7차",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          },
+          {
+            "caller": "가상콜러B",
+            "round": "수능인원",
+            "count": 1,
+            "successes": 0,
+            "rate": 0
+          }
+        ],
+        "lag": {
+          "count": 1,
+          "missing": 0,
+          "average": 2,
+          "median": 2,
+          "p80": 2,
+          "within": [
+            {
+              "days": 0,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 1,
+              "count": 0,
+              "rate": 0
+            },
+            {
+              "days": 3,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 7,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 14,
+              "count": 1,
+              "rate": 100
+            },
+            {
+              "days": 30,
+              "count": 1,
+              "rate": 100
+            }
+          ]
+        },
+        "reportText": "< 콜링 결과 보고 >\n날짜: 전체 기간\n\n✔️1차콜링 1건 중 1건 연결\n✔️2차콜링 1건 중 0건 연결\n✔️3차콜링 1건 중 1건 연결\n✔️7차콜링 1건 중 0건 연결\n✔️수능인원콜링 1건 중 0건 연결\n\n\n\n🔺 총 5건 중 2건 연결 (40%)"
+      }
+    }
+  ]
+}

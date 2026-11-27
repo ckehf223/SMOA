@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smoa.module.mapper.RecordsMapper">
+
+    <!--
+        구역 범위 조건. 항상 "AND ( <include/> )" 처럼 괄호로 감싸 쓴다(OR 가 LIB_ID 등 다른 AND 조건을 우회하지 못하게).
+          scopeAll=true            → 1 = 1 (구역 미지정 행 포함)
+          unassigned=true          → (ALL 중 활성 구역만 보는 범위) 구역 미지정 행도 함께 보인다. ORG 범위에서는 항상 false
+          districts 가 비었거나 null → 1 = 0 (0행, fail-closed)
+          그 밖                    → ((지역=? AND 구역=?) OR (...)) 복합키 쌍. 지역 코드 없이 구역 코드만으로 비교하지 않는다.
+        ${a} 는 테이블 별칭(include property)이며 코드가 고정한 값이다(사용자 입력 아님).
+    -->
+    <sql id="scopeCond">
+        <choose>
+            <when test="scopeAll">1 = 1</when>
+            <when test="(districts == null or districts.isEmpty()) and !unassigned">1 = 0</when>
+            <otherwise>
+                (1 = 0
+                <if test="unassigned"> OR ${a}.ORG_MSTR_CODE IS NULL OR ${a}.ORG_CODE IS NULL</if>
+                <foreach collection="districts" item="d"> OR (${a}.ORG_MSTR_CODE = #{d.regionCode} AND ${a}.ORG_CODE = #{d.districtCode})</foreach>)
+            </otherwise>
+        </choose>
+    </sql>
+
+    <!-- 연락처 암호문(PHONE_ENC)은 어떤 SELECT 에서도 읽지 않는다. 끝 네 자리와 보유 여부만. -->
+    <sql id="personColumns">
+        T.TGT_ID AS id,
+        T.LEGACY_ID AS legacyId,
+        T.TGT_CODE AS code,
+        T.TGT_NAME_HAN AS name,
+        T.SEX_CODE AS gender,
+        T.AGE AS age,
+        DATE_FORMAT(T.AGE_BASE_DATE, '%Y-%m-%d') AS ageAsOf,
+        DATE_FORMAT(T.FOUND_DATE, '%Y-%m-%d') AS foundDate,
+        TIME_FORMAT(T.FOUND_TIME, '%H:%i:%s') AS foundTime,
+        (T.DATE_UNKNOWN_IND = 'Y') AS dateUnknown,
+        T.CLASS1_CODE AS classification1,
+        T.CLASS2_CODE AS classification2,
+        T.PLACE_NAME AS place,
+        T.TOOL_NAME AS tool,
+        T.RESIDENCE AS residence,
+        T.TEACHER_NAME AS teacher,
+        T.REASON AS reason,
+        T.WORKER_NAME AS worker,
+        T.EMPL_ID AS introducerId,
+        T.INTRO_EMPL_CODE AS introducerCode,
+        T.INTRO_NAME AS introducerName,
+        T.INTRO_ORG_SNAPSHOT AS introducerOrg,
+        T.ORG_MSTR_CODE AS regionCode,
+        T.ORG_CODE AS districtCode,
+        T.BAN_CODE AS className,
+        T.JOB_CODE AS employment,
+        T.STAGE_CODE AS stageId,
+        T.STATUS_CODE AS status,
+        T.APPOINTMENT_TEXT AS appointment,
+        T.NOTES AS notes,
+        T.CUSTOM_JSON AS custom,
+        DATE_FORMAT(T.MANPIK_DATE, '%Y-%m-%d') AS manpikDate,
+        DATE_FORMAT(T.FIND_A_DATE, '%Y-%m-%d') AS findADate,
+        DATE_FORMAT(T.HAB_B_DATE, '%Y-%m-%d') AS habBDate,
+        DATE_FORMAT(T.HAB_A_DATE, '%Y-%m-%d') AS habADate,
+        DATE_FORMAT(T.YOUNG_TTA_DATE, '%Y-%m-%d') AS youngTtaDate,
+        DATE_FORMAT(T.BOKSHIN_DATE, '%Y-%m-%d') AS bokshinDate,
+        DATE_FORMAT(T.CARD_RECEIVED_DATE, '%Y-%m-%d') AS cardReceivedDate,
+        DATE_FORMAT(T.CENTER_REGISTERED_DATE, '%Y-%m-%d') AS centerRegisteredDate,
+        T.PHONE_LAST4 AS phoneLast4,
+        (T.PHONE_LAST4 IS NOT NULL) AS hasPhone,
+        T.ROW_VERSION AS rowVersion,
+        (T.DEL_IND = 'Y') AS deleted,
+        DATE_FORMAT(T.SYS_RUSR_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS createdAt,
+        DATE_FORMAT(T.SYS_MUSR_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS updatedAt
+    </sql>
+
+    <sql id="activityColumns">
+        A.ACT_ID AS id,
+        A.TGT_ID AS personId,
+        A.LEGACY_ID AS legacyId,
+        A.ACT_CODE AS code,
+        DATE_FORMAT(A.ACT_DATE, '%Y-%m-%d') AS date,
+        TIME_FORMAT(A.START_TIME, '%H:%i:%s') AS startTime,
+        TIME_FORMAT(A.END_TIME, '%H:%i:%s') AS endTime,
+        A.ACT_MINUTES AS minutes,
+        A.CLASS2_CODE AS classification2,
+        A.SESSION_KEY AS sessionKey,
+        A.EMPL_ID AS workerId,
+        A.EMPL_CODE AS workerCode,
+        A.EMPL_NAME AS worker,
+        A.ORG_MSTR_CODE AS regionCode,
+        A.ORG_CODE AS districtCode,
+        A.BAN_CODE AS className,
+        A.PLACE_NAME AS place,
+        A.ACT_KIND_NAME AS type,
+        A.MEMO AS memo,
+        A.ROW_VERSION AS rowVersion,
+        (A.DEL_IND = 'Y') AS deleted,
+        DATE_FORMAT(A.SYS_RUSR_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS createdAt,
+        DATE_FORMAT(A.SYS_MUSR_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS updatedAt
+    </sql>
+
+    <!-- ================= 공통코드 / 참조 ================= -->
+
+    <select id="selectLibrary" resultType="map">
+        SELECT L.LIB_ID AS libId, (L.USE_IND = 'Y') AS active
+          FROM LIBMSTR L
+         WHERE L.LIB_ID = #{libId}
+    </select>
+
+    <select id="selectCodeItems" resultType="map">
+        SELECT D.GROUP_CODE AS groupCode,
+               D.ITEM_CODE AS itemCode,
+               D.ITEM_NAME AS itemName,
+               D.SORT_NO AS sortOrder,
+               (D.USE_IND = 'Y') AS active
+          FROM CODEDTL D
+          JOIN CODEMSTR M ON M.LIB_ID = D.LIB_ID AND M.GROUP_CODE = D.GROUP_CODE
+         WHERE D.LIB_ID = #{libId}
+           AND M.USE_IND = 'Y'
+         ORDER BY D.GROUP_CODE, D.SORT_NO, D.ITEM_CODE
+    </select>
+
+    <select id="countEmployee" resultType="long">
+        SELECT COUNT(*) FROM PSMSTR P WHERE P.EMPL_ID = #{employeeId}
+           AND (<include refid="scopeCond"><property name="a" value="P"/></include>)
+    </select>
+
+    <select id="selectMigrationSourceId" resultType="string">
+        SELECT M.SOURCE_ID
+          FROM MIGMAP M
+         WHERE M.LIB_ID = #{libId}
+           AND M.ENTITY_KIND = 'TGMSTR'
+           AND M.TARGET_ID = #{personId}
+         ORDER BY M.MAP_ID
+         LIMIT 1
+    </select>
+
+    <!-- ================= 대상자 ================= -->
+
+    <!-- 목록·건수·내보내기가 같은 조건을 쓰도록 한 곳에 둔다(조건이 어긋나면 총건수가 틀린다). -->
+    <sql id="personFilter">
+         WHERE T.LIB_ID = #{libId}
+           AND (<include refid="scopeCond"><property name="a" value="T"/></include>)
+        <if test="!f.includeDeleted">
+           AND T.DEL_IND = 'N'
+        </if>
+        <if test="f.regionCode != null">
+           AND T.ORG_MSTR_CODE = #{f.regionCode}
+        </if>
+        <if test="f.districtCode != null">
+           AND T.ORG_CODE = #{f.districtCode}
+        </if>
+        <if test="f.stageId != null">
+           AND T.STAGE_CODE = #{f.stageId}
+        </if>
+        <if test="f.status != null">
+           AND T.STATUS_CODE = #{f.status}
+        </if>
+        <if test="f.phoneLast4 != null">
+           AND T.PHONE_LAST4 = #{f.phoneLast4}
+        </if>
+        <if test="f.foundFrom != null">
+           AND T.FOUND_DATE &gt;= #{f.foundFrom}
+        </if>
+        <if test="f.foundTo != null">
+           AND T.FOUND_DATE &lt;= #{f.foundTo}
+        </if>
+        <if test="f.q != null">
+           AND (LOCATE(#{f.q}, T.TGT_NAME_HAN) &gt; 0 OR LOCATE(#{f.q}, IFNULL(T.TGT_CODE, '')) &gt; 0)
+        </if>
+    </sql>
+
+    <select id="selectPeople" resultType="map">
+        SELECT <include refid="personColumns"/>
+          FROM TGMSTR T
+        <include refid="personFilter"/>
+         ORDER BY T.TGT_NAME_HAN, T.TGT_ID
+         LIMIT #{f.limit} OFFSET #{f.offset}
+    </select>
+
+    <select id="countPeople" resultType="long">
+        SELECT COUNT(*)
+          FROM TGMSTR T
+        <include refid="personFilter"/>
+    </select>
+
+    <!-- 인도자 선택지: 조직원 명부(PSMSTR). 구역 범위로 좁히고 이름·구성원 표기코드로 검색한다. 연락처 정보는 읽지 않는다. -->
+    <sql id="employeeFilter">
+         WHERE (<include refid="scopeCond"><property name="a" value="P"/></include>)
+           AND P.USE_IND = 'Y'
+        <if test="q != null">
+           AND (LOCATE(#{q}, P.EMPL_NAME_HAN) &gt; 0 OR LOCATE(#{q}, IFNULL(P.EMPL_CODE, '')) &gt; 0)
+        </if>
+    </sql>
+
+    <select id="selectEmployees" resultType="map">
+        SELECT P.EMPL_ID AS id,
+               P.EMPL_CODE AS code,
+               P.EMPL_NAME_HAN AS name,
+               P.ORG_MSTR_CODE AS regionCode,
+               P.ORG_CODE AS districtCode
+          FROM PSMSTR P
+        <include refid="employeeFilter"/>
+         ORDER BY P.EMPL_NAME_HAN, P.EMPL_CODE, P.EMPL_ID
+         LIMIT #{limit}
+    </select>
+
+    <select id="countEmployees" resultType="long">
+        SELECT COUNT(*)
+          FROM PSMSTR P
+        <include refid="employeeFilter"/>
+    </select>
+
+    <select id="selectPersonById" resultType="map">
+        SELECT <include refid="personColumns"/>
+          FROM TGMSTR T
+         WHERE T.LIB_ID = #{libId}
+           AND T.TGT_ID = #{id}
+           AND (<include refid="scopeCond"><property name="a" value="T"/></include>)
+    </select>
+
+    <!-- row 키: libId, name, code ..., sysUserId, sysIp, sysAt. 생성된 TGT_ID → row.id.
+         PHONE_ENC/SOURCE_ENC 는 여기서 쓰지 않는다(연락처는 AUTO_INCREMENT 확정 뒤 attachInitialPhone 으로). -->
+    <insert id="insertPerson" useGeneratedKeys="true" keyProperty="id" keyColumn="TGT_ID">
+        INSERT INTO TGMSTR
+               (LIB_ID, TGT_CODE, TGT_NAME_HAN, SEX_CODE, AGE, AGE_BASE_DATE, FOUND_DATE, FOUND_TIME, DATE_UNKNOWN_IND,
+                CLASS1_CODE, CLASS2_CODE, PLACE_NAME, TOOL_NAME, RESIDENCE, TEACHER_NAME, REASON, WORKER_NAME,
+                EMPL_ID, INTRO_EMPL_CODE, INTRO_NAME, INTRO_ORG_SNAPSHOT, ORG_MSTR_CODE, ORG_CODE, BAN_CODE, JOB_CODE,
+                STAGE_CODE, STATUS_CODE, APPOINTMENT_TEXT, NOTES, CUSTOM_JSON,
+                MANPIK_DATE, FIND_A_DATE, HAB_B_DATE, HAB_A_DATE, YOUNG_TTA_DATE, BOKSHIN_DATE, CARD_RECEIVED_DATE,
+                CENTER_REGISTERED_DATE, ROW_VERSION, DEL_IND,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES (#{libId}, #{code}, #{name}, #{gender}, #{age}, #{ageAsOf}, #{foundDate}, #{foundTime}, IF(#{dateUnknown}, 'Y', 'N'),
+                #{classification1}, #{classification2}, #{place}, #{tool}, #{residence}, #{teacher}, #{reason}, #{worker},
+                #{introducerId}, #{introducerCode}, #{introducerName}, #{introducerOrg}, #{regionCode}, #{districtCode},
+                #{className}, #{employment},
+                #{stageId}, #{status}, #{appointment}, #{notes}, #{custom},
+                #{manpikDate}, #{findADate}, #{habBDate}, #{habADate}, #{youngTtaDate}, #{bokshinDate}, #{cardReceivedDate},
+                #{centerRegisteredDate}, 1, 'N',
+                #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+    <!--
+        부분 수정: changed(Set) 에 든 필드만 SET 에 들어간다. 나머지 컬럼(SOURCE_ENC, LEGACY_ID, 연락처 등)은 건드리지 않는다.
+        낙관적 잠금 ROW_VERSION = #{expectedVersion}, LIB_ID, 구역 범위가 모두 WHERE 에 있다. 영향 행 0 은 서비스가 404/409 로 구분한다.
+    -->
+    <update id="updatePerson">
+        UPDATE TGMSTR T
+        <set>
+            <if test="changed.contains('code')">T.TGT_CODE = #{code},</if>
+            <if test="changed.contains('name')">T.TGT_NAME_HAN = #{name},</if>
+            <if test="changed.contains('gender')">T.SEX_CODE = #{gender},</if>
+            <if test="changed.contains('age')">T.AGE = #{age},</if>
+            <if test="changed.contains('ageAsOf')">T.AGE_BASE_DATE = #{ageAsOf},</if>
+            <if test="changed.contains('foundDate')">T.FOUND_DATE = #{foundDate},</if>
+            <if test="changed.contains('foundTime')">T.FOUND_TIME = #{foundTime},</if>
+            <if test="changed.contains('dateUnknown')">T.DATE_UNKNOWN_IND = IF(#{dateUnknown}, 'Y', 'N'),</if>
+            <if test="changed.contains('classification1')">T.CLASS1_CODE = #{classification1},</if>
+            <if test="changed.contains('classification2')">T.CLASS2_CODE = #{classification2},</if>
+            <if test="changed.contains('place')">T.PLACE_NAME = #{place},</if>
+            <if test="changed.contains('tool')">T.TOOL_NAME = #{tool},</if>
+            <if test="changed.contains('residence')">T.RESIDENCE = #{residence},</if>
+            <if test="changed.contains('teacher')">T.TEACHER_NAME = #{teacher},</if>
+            <if test="changed.contains('reason')">T.REASON = #{reason},</if>
+            <if test="changed.contains('worker')">T.WORKER_NAME = #{worker},</if>
+            <if test="changed.contains('introducerId')">T.EMPL_ID = #{introducerId},</if>
+            <if test="changed.contains('introducerCode')">T.INTRO_EMPL_CODE = #{introducerCode},</if>
+            <if test="changed.contains('introducerName')">T.INTRO_NAME = #{introducerName},</if>
+            <if test="changed.contains('introducerOrg')">T.INTRO_ORG_SNAPSHOT = #{introducerOrg},</if>
+            <if test="changed.contains('regionCode')">T.ORG_MSTR_CODE = #{regionCode},</if>
+            <if test="changed.contains('districtCode')">T.ORG_CODE = #{districtCode},</if>
+            <if test="changed.contains('className')">T.BAN_CODE = #{className},</if>
+            <if test="changed.contains('employment')">T.JOB_CODE = #{employment},</if>
+            <if test="changed.contains('stageId')">T.STAGE_CODE = #{stageId},</if>
+            <if test="changed.contains('status')">T.STATUS_CODE = #{status},</if>
+            <if test="changed.contains('appointment')">T.APPOINTMENT_TEXT = #{appointment},</if>
+            <if test="changed.contains('notes')">T.NOTES = #{notes},</if>
+            <if test="changed.contains('custom')">T.CUSTOM_JSON = #{custom},</if>
+            <if test="changed.contains('manpikDate')">T.MANPIK_DATE = #{manpikDate},</if>
+            <if test="changed.contains('findADate')">T.FIND_A_DATE = #{findADate},</if>
+            <if test="changed.contains('habBDate')">T.HAB_B_DATE = #{habBDate},</if>
+            <if test="changed.contains('habADate')">T.HAB_A_DATE = #{habADate},</if>
+            <if test="changed.contains('youngTtaDate')">T.YOUNG_TTA_DATE = #{youngTtaDate},</if>
+            <if test="changed.contains('bokshinDate')">T.BOKSHIN_DATE = #{bokshinDate},</if>
+            <if test="changed.contains('cardReceivedDate')">T.CARD_RECEIVED_DATE = #{cardReceivedDate},</if>
+            <if test="changed.contains('centerRegisteredDate')">T.CENTER_REGISTERED_DATE = #{centerRegisteredDate},</if>
+            <if test="changed.contains('deleted')">T.DEL_IND = IF(#{deleted}, 'Y', 'N'),</if>
+            <if test="phoneChange">T.PHONE_ENC = #{phoneEnc}, T.PHONE_LAST4 = #{phoneLast4}, T.PHONE_KEY_VER = #{phoneKeyVer},</if>
+            T.ROW_VERSION = T.ROW_VERSION + 1,
+            T.SYS_MUSR_ID = #{sysUserId},
+            T.SYS_MUSR_IP = #{sysIp},
+            T.SYS_MUSR_DTTM = #{sysAt}
+        </set>
+         WHERE T.TGT_ID = #{id}
+           AND T.LIB_ID = #{libId}
+           AND T.ROW_VERSION = #{expectedVersion}
+           AND (<include refid="scopeCond"><property name="a" value="T"/></include>)
+    </update>
+
+    <update id="attachInitialPhone">
+        UPDATE TGMSTR T
+           SET T.PHONE_ENC = #{phoneEnc},
+               T.PHONE_LAST4 = #{phoneLast4},
+               T.PHONE_KEY_VER = #{phoneKeyVer}
+         WHERE T.TGT_ID = #{id}
+           AND T.LIB_ID = #{libId}
+           AND T.PHONE_ENC IS NULL
+    </update>
+
+    <!-- ================= 활동 ================= -->
+
+    <sql id="activityFilter">
+         WHERE A.LIB_ID = #{libId}
+           AND A.DEL_IND = 'N'
+           AND (<include refid="scopeCond"><property name="a" value="A"/></include>)
+        <if test="f.personId != null">
+           AND A.TGT_ID = #{f.personId}
+        </if>
+        <if test="f.standalone != null and f.standalone">
+           AND A.TGT_ID IS NULL
+        </if>
+        <if test="f.standalone != null and !f.standalone">
+           AND A.TGT_ID IS NOT NULL
+        </if>
+        <if test="f.regionCode != null">
+           AND A.ORG_MSTR_CODE = #{f.regionCode}
+        </if>
+        <if test="f.districtCode != null">
+           AND A.ORG_CODE = #{f.districtCode}
+        </if>
+        <if test="f.from != null">
+           AND A.ACT_DATE &gt;= #{f.from}
+        </if>
+        <if test="f.to != null">
+           AND A.ACT_DATE &lt;= #{f.to}
+        </if>
+    </sql>
+
+    <select id="selectActivities" resultType="map">
+        SELECT <include refid="activityColumns"/>
+          FROM ACTMSTR A
+        <include refid="activityFilter"/>
+         ORDER BY A.ACT_DATE, A.START_TIME, A.ACT_ID
+         LIMIT #{f.limit} OFFSET #{f.offset}
+    </select>
+
+    <select id="countActivities" resultType="long">
+        SELECT COUNT(*)
+          FROM ACTMSTR A
+        <include refid="activityFilter"/>
+    </select>
+
+    <!-- 목록 페이지와 무관한 전체 집계(같은 조건·범위). 대상자 활동과 독립 활동(TGT_ID 없음)을 나눈다. -->
+    <select id="summarizeActivities" resultType="map">
+        SELECT COALESCE(SUM(CASE WHEN A.TGT_ID IS NOT NULL THEN 1 ELSE 0 END), 0) AS personCount,
+               COALESCE(SUM(CASE WHEN A.TGT_ID IS NOT NULL THEN A.ACT_MINUTES ELSE 0 END), 0) AS personMinutes,
+               COALESCE(SUM(CASE WHEN A.TGT_ID IS NULL THEN 1 ELSE 0 END), 0) AS standaloneCount,
+               COALESCE(SUM(CASE WHEN A.TGT_ID IS NULL THEN A.ACT_MINUTES ELSE 0 END), 0) AS standaloneMinutes
+          FROM ACTMSTR A
+        <include refid="activityFilter"/>
+    </select>
+
+    <select id="selectActivityById" resultType="map">
+        SELECT <include refid="activityColumns"/>
+          FROM ACTMSTR A
+         WHERE A.LIB_ID = #{libId}
+           AND A.ACT_ID = #{id}
+           AND (<include refid="scopeCond"><property name="a" value="A"/></include>)
+    </select>
+
+    <insert id="insertActivity" useGeneratedKeys="true" keyProperty="id" keyColumn="ACT_ID">
+        INSERT INTO ACTMSTR
+               (LIB_ID, TGT_ID, ACT_CODE, ACT_DATE, START_TIME, END_TIME, ACT_MINUTES, CLASS2_CODE, SESSION_KEY,
+                EMPL_ID, EMPL_CODE, EMPL_NAME, ORG_MSTR_CODE, ORG_CODE, BAN_CODE, PLACE_NAME, ACT_KIND_NAME, MEMO,
+                ROW_VERSION, DEL_IND,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES (#{libId}, #{personId}, #{code}, #{date}, #{startTime}, #{endTime}, #{minutes}, #{classification2}, #{sessionKey},
+                #{workerId}, #{workerCode}, #{worker}, #{regionCode}, #{districtCode}, #{className}, #{place}, #{type}, #{memo},
+                1, 'N',
+                #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+    <update id="updateActivity">
+        UPDATE ACTMSTR A
+        <set>
+            <if test="changed.contains('code')">A.ACT_CODE = #{code},</if>
+            <if test="changed.contains('date')">A.ACT_DATE = #{date},</if>
+            <if test="changed.contains('startTime')">A.START_TIME = #{startTime},</if>
+            <if test="changed.contains('endTime')">A.END_TIME = #{endTime},</if>
+            <if test="changed.contains('minutes')">A.ACT_MINUTES = #{minutes},</if>
+            <if test="changed.contains('classification2')">A.CLASS2_CODE = #{classification2},</if>
+            <if test="changed.contains('sessionKey')">A.SESSION_KEY = #{sessionKey},</if>
+            <if test="changed.contains('workerId')">A.EMPL_ID = #{workerId},</if>
+            <if test="changed.contains('workerCode')">A.EMPL_CODE = #{workerCode},</if>
+            <if test="changed.contains('worker')">A.EMPL_NAME = #{worker},</if>
+            <if test="changed.contains('regionCode')">A.ORG_MSTR_CODE = #{regionCode},</if>
+            <if test="changed.contains('districtCode')">A.ORG_CODE = #{districtCode},</if>
+            <if test="changed.contains('className')">A.BAN_CODE = #{className},</if>
+            <if test="changed.contains('place')">A.PLACE_NAME = #{place},</if>
+            <if test="changed.contains('type')">A.ACT_KIND_NAME = #{type},</if>
+            <if test="changed.contains('memo')">A.MEMO = #{memo},</if>
+            <if test="changed.contains('deleted')">A.DEL_IND = IF(#{deleted}, 'Y', 'N'),</if>
+            A.ROW_VERSION = A.ROW_VERSION + 1,
+            A.SYS_MUSR_ID = #{sysUserId},
+            A.SYS_MUSR_IP = #{sysIp},
+            A.SYS_MUSR_DTTM = #{sysAt}
+        </set>
+         WHERE A.ACT_ID = #{id}
+           AND A.LIB_ID = #{libId}
+           AND A.ROW_VERSION = #{expectedVersion}
+           AND (<include refid="scopeCond"><property name="a" value="A"/></include>)
+    </update>
+
+    <!-- ================= 이력 (범위는 대상자의 현재 구역 기준 = 더 엄격) ================= -->
+
+    <!--
+        이력 한 쪽 = 단계 로그(TGSTGLOG) + 상태 로그(TGSTATLOG) + 변경 로그(CHGLOG)의 UNION ALL. 최신순, 범위·조건은 SQL 에서 걸러
+        총건수(countHistory)와 페이지(selectHistory)가 같은 집합을 가리킨다. 단계·상태 로그와 중복되는 CHGLOG 항목(person.stage/dropout/return)은 제외한다.
+        구역 범위는 대상자의 현재 구역 기준(더 엄격)이다. CHGLOG 는 대상자(TGMSTR) 또는 활동(ACTMSTR)에 연결될 때만 구역이 판정된다:
+        새 항목은 TARGET_KIND/TARGET_ID(TGT_ID/ACT_ID), 이관 항목은 TARGET_KIND=NULL 이며 TARGET_ID 가 대상자 LEGACY_ID 이다.
+        어느 쪽에도 연결되지 않은 항목은 구역 제한 없는 범위(scopeAll/unassigned)에서만 보이고 ORG 에게는 보이지 않는다(fail-closed).
+        BEFORE/AFTER JSON 은 일반 목록에 싣지 않는다.
+    -->
+    <sql id="historyUnion">
+        SELECT 'STAGE' AS kind, 1 AS kindRank,
+               L.STG_LOG_ID AS id,
+               L.TGT_ID AS personId,
+               T.ORG_MSTR_CODE AS regionCode,
+               T.ORG_CODE AS districtCode,
+               L.FROM_STAGE AS fromValue,
+               L.TO_STAGE AS toValue,
+               DATE_FORMAT(L.APPLY_DTTM, '%Y-%m-%dT%H:%i:%s') AS effectiveAt,
+               DATE_FORMAT(L.RECORDED_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS recordedAt,
+               IF(L.TIME_UNKNOWN_IND = 'Y', 1, 0) AS timeUnknown,
+               IF(L.BASELINE_IND = 'Y', 1, 0) AS baseline,
+               L.ACTOR_ID AS actorId,
+               L.ACTOR_NAME AS actorName,
+               L.REASON AS reason,
+               CAST(NULL AS CHAR) AS action,
+               CAST(NULL AS CHAR) AS targetKind,
+               CAST(NULL AS CHAR) AS targetId,
+               COALESCE(L.APPLY_DTTM, L.RECORDED_DTTM) AS sortAt
+          FROM TGSTGLOG L
+          JOIN TGMSTR T ON T.TGT_ID = L.TGT_ID AND T.LIB_ID = L.LIB_ID
+         WHERE L.LIB_ID = #{libId}
+           AND (<include refid="scopeCond"><property name="a" value="T"/></include>)
+        <if test="f.personId != null">
+           AND L.TGT_ID = #{f.personId}
+        </if>
+        UNION ALL
+        SELECT 'STATUS' AS kind, 2 AS kindRank,
+               L.STAT_LOG_ID AS id,
+               L.TGT_ID AS personId,
+               T.ORG_MSTR_CODE AS regionCode,
+               T.ORG_CODE AS districtCode,
+               L.FROM_STATUS AS fromValue,
+               L.TO_STATUS AS toValue,
+               DATE_FORMAT(L.APPLY_DTTM, '%Y-%m-%dT%H:%i:%s') AS effectiveAt,
+               DATE_FORMAT(L.RECORDED_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS recordedAt,
+               0 AS timeUnknown,
+               0 AS baseline,
+               L.ACTOR_ID AS actorId,
+               L.ACTOR_NAME AS actorName,
+               L.REASON AS reason,
+               CAST(NULL AS CHAR) AS action,
+               CAST(NULL AS CHAR) AS targetKind,
+               CAST(NULL AS CHAR) AS targetId,
+               COALESCE(L.APPLY_DTTM, L.RECORDED_DTTM) AS sortAt
+          FROM TGSTATLOG L
+          JOIN TGMSTR T ON T.TGT_ID = L.TGT_ID AND T.LIB_ID = L.LIB_ID
+         WHERE L.LIB_ID = #{libId}
+           AND (<include refid="scopeCond"><property name="a" value="T"/></include>)
+        <if test="f.personId != null">
+           AND L.TGT_ID = #{f.personId}
+        </if>
+        UNION ALL
+        SELECT 'CHANGE' AS kind, 3 AS kindRank,
+               C.CHG_ID AS id,
+               COALESCE(T.TGT_ID, V.TGT_ID) AS personId,
+               COALESCE(T.ORG_MSTR_CODE, V.ORG_MSTR_CODE, A.ORG_MSTR_CODE) AS regionCode,
+               COALESCE(T.ORG_CODE, V.ORG_CODE, A.ORG_CODE) AS districtCode,
+               CAST(NULL AS CHAR) AS fromValue,
+               CAST(NULL AS CHAR) AS toValue,
+               CAST(NULL AS CHAR) AS effectiveAt,
+               DATE_FORMAT(C.ACT_DTTM, '%Y-%m-%dT%H:%i:%sZ') AS recordedAt,
+               0 AS timeUnknown,
+               0 AS baseline,
+               C.ACTOR_ID AS actorId,
+               C.ACTOR_NAME AS actorName,
+               CAST(NULL AS CHAR) AS reason,
+               C.ACTION_NAME AS action,
+               C.TARGET_KIND AS targetKind,
+               C.TARGET_ID AS targetId,
+               C.ACT_DTTM AS sortAt
+          FROM CHGLOG C
+          LEFT JOIN TGMSTR T ON T.LIB_ID = C.LIB_ID
+               AND T.TGT_ID = CASE WHEN C.TARGET_KIND = 'TGMSTR' AND C.TARGET_ID REGEXP '^[1-9][0-9]{0,18}$'
+                                   THEN CAST(C.TARGET_ID AS UNSIGNED) END
+          LEFT JOIN TGMSTR V ON V.LIB_ID = C.LIB_ID
+               AND V.LEGACY_ID = CASE WHEN C.TARGET_KIND IS NULL THEN C.TARGET_ID END
+          LEFT JOIN ACTMSTR A ON A.LIB_ID = C.LIB_ID
+               AND A.ACT_ID = CASE WHEN C.TARGET_KIND = 'ACTMSTR' AND C.TARGET_ID REGEXP '^[1-9][0-9]{0,18}$'
+                                   THEN CAST(C.TARGET_ID AS UNSIGNED) END
+         WHERE C.LIB_ID = #{libId}
+           AND C.ACTION_NAME NOT IN ('person.stage', 'person.dropout', 'person.return')
+           AND (
+        <choose>
+            <when test="scopeAll">1 = 1</when>
+            <when test="(districts == null or districts.isEmpty()) and !unassigned">1 = 0</when>
+            <otherwise>
+                (T.TGT_ID IS NOT NULL AND (<include refid="scopeCond"><property name="a" value="T"/></include>))
+                OR (V.TGT_ID IS NOT NULL AND (<include refid="scopeCond"><property name="a" value="V"/></include>))
+                OR (A.ACT_ID IS NOT NULL AND (<include refid="scopeCond"><property name="a" value="A"/></include>))
+                <if test="unassigned"> OR (T.TGT_ID IS NULL AND V.TGT_ID IS NULL AND A.ACT_ID IS NULL)</if>
+            </otherwise>
+        </choose>
+           )
+        <if test="f.personId != null">
+           AND (T.TGT_ID = #{f.personId} OR V.TGT_ID = #{f.personId})
+        </if>
+    </sql>
+
+    <sql id="historyOuterFilter">
+         WHERE 1 = 1
+        <if test="f.kind != null">
+           AND u.kind = #{f.kind}
+        </if>
+        <if test="f.from != null">
+           AND u.sortAt &gt;= #{f.from}
+        </if>
+        <if test="f.to != null">
+           AND u.sortAt &lt; DATE_ADD(#{f.to}, INTERVAL 1 DAY)
+        </if>
+    </sql>
+
+    <select id="selectHistory" resultType="map">
+        SELECT u.*
+          FROM (<include refid="historyUnion"/>) u
+        <include refid="historyOuterFilter"/>
+         ORDER BY u.sortAt DESC, u.kindRank DESC, u.id DESC
+         LIMIT #{f.limit} OFFSET #{f.offset}
+    </select>
+
+    <select id="countHistory" resultType="long">
+        SELECT COUNT(*)
+          FROM (<include refid="historyUnion"/>) u
+        <include refid="historyOuterFilter"/>
+    </select>
+
+    <!-- 단계 이동 집계: 목록 페이지·CHGLOG 와 무관하게 TGSTGLOG 전체에서 센다. 기준(신규 등록) 행은 성과가 아니다. -->
+    <select id="selectStageTransitions" resultType="map">
+        SELECT IFNULL(L.FROM_STAGE, '-') AS fromValue,
+               IFNULL(L.TO_STAGE, '-') AS toValue,
+               COUNT(*) AS cnt
+          FROM TGSTGLOG L
+          JOIN TGMSTR T ON T.TGT_ID = L.TGT_ID AND T.LIB_ID = L.LIB_ID
+         WHERE L.LIB_ID = #{libId}
+           AND L.BASELINE_IND = 'N'
+           AND L.APPLY_DTTM IS NOT NULL
+           AND (<include refid="scopeCond"><property name="a" value="T"/></include>)
+        <if test="f.regionCode != null">
+           AND T.ORG_MSTR_CODE = #{f.regionCode}
+        </if>
+        <if test="f.districtCode != null">
+           AND T.ORG_CODE = #{f.districtCode}
+        </if>
+        <if test="f.from != null">
+           AND L.APPLY_DTTM &gt;= #{f.from}
+        </if>
+        <if test="f.to != null">
+           AND L.APPLY_DTTM &lt; DATE_ADD(#{f.to}, INTERVAL 1 DAY)
+        </if>
+         GROUP BY IFNULL(L.FROM_STAGE, '-'), IFNULL(L.TO_STAGE, '-')
+         ORDER BY cnt DESC, fromValue, toValue
+    </select>
+
+    <select id="selectNextStageSeq" resultType="long">
+        SELECT COALESCE(MAX(L.SEQ_NO), 0) + 1 FROM TGSTGLOG L WHERE L.TGT_ID = #{personId}
+    </select>
+
+    <select id="selectNextStatusSeq" resultType="long">
+        SELECT COALESCE(MAX(L.SEQ_NO), 0) + 1 FROM TGSTATLOG L WHERE L.TGT_ID = #{personId}
+    </select>
+
+    <!-- 당시 구역·반·담당자·인도자·직업은 대상자의 현재 행을 그대로 복사한다. 단계 이름은 STAGE 공통코드에서 찾는다. -->
+    <insert id="insertStageLog">
+        INSERT INTO TGSTGLOG
+               (LIB_ID, TGT_ID, SEQ_NO, FROM_STAGE, TO_STAGE, FROM_NAME, TO_NAME, APPLY_DTTM, RECORDED_DTTM,
+                TIME_UNKNOWN_IND, BASELINE_IND, ACTOR_ID, ACTOR_NAME, REASON,
+                ORG_MSTR_CODE, ORG_CODE, BAN_CODE, WORKER_NAME, EMPL_ID, EMPL_CODE, JOB_CODE,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        SELECT #{libId}, T.TGT_ID, #{seq}, #{fromValue}, #{toValue},
+               (SELECT D.ITEM_NAME FROM CODEDTL D WHERE D.LIB_ID = #{libId} AND D.GROUP_CODE = 'STAGE' AND D.ITEM_CODE = #{fromValue} LIMIT 1),
+               (SELECT D.ITEM_NAME FROM CODEDTL D WHERE D.LIB_ID = #{libId} AND D.GROUP_CODE = 'STAGE' AND D.ITEM_CODE = #{toValue} LIMIT 1),
+               #{effectiveAt}, #{recordedAt},
+               IF(#{timeUnknown}, 'Y', 'N'), IF(#{baseline}, 'Y', 'N'), #{actorId}, #{actorName}, #{reason},
+               T.ORG_MSTR_CODE, T.ORG_CODE, T.BAN_CODE, T.WORKER_NAME, T.EMPL_ID, T.INTRO_EMPL_CODE, T.JOB_CODE,
+               #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt}
+          FROM TGMSTR T
+         WHERE T.TGT_ID = #{personId}
+           AND T.LIB_ID = #{libId}
+    </insert>
+
+    <insert id="insertStatusLog">
+        INSERT INTO TGSTATLOG
+               (LIB_ID, TGT_ID, SEQ_NO, FROM_STATUS, TO_STATUS, APPLY_DTTM, RECORDED_DTTM, ACTOR_ID, ACTOR_NAME, REASON,
+                ORG_MSTR_CODE, ORG_CODE, BAN_CODE,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        SELECT #{libId}, T.TGT_ID, #{seq}, #{fromValue}, #{toValue}, #{effectiveAt}, #{recordedAt}, #{actorId}, #{actorName}, #{reason},
+               T.ORG_MSTR_CODE, T.ORG_CODE, T.BAN_CODE,
+               #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt}
+          FROM TGMSTR T
+         WHERE T.TGT_ID = #{personId}
+           AND T.LIB_ID = #{libId}
+    </insert>
+
+    <select id="lockLibrary" resultType="string">
+        SELECT L.LIB_ID FROM LIBMSTR L WHERE L.LIB_ID = #{libId} FOR UPDATE
+    </select>
+
+    <select id="selectLastChangeLog" resultType="map">
+        SELECT C.SEQ_NO AS seq, C.ENTRY_HASH AS hash
+          FROM CHGLOG C
+         WHERE C.LIB_ID = #{libId}
+         ORDER BY C.SEQ_NO DESC, C.CHG_ID DESC
+         LIMIT 1 FOR UPDATE
+    </select>
+
+    <insert id="insertChangeLog" useGeneratedKeys="true" keyProperty="chgId" keyColumn="CHG_ID">
+        INSERT INTO CHGLOG
+               (LIB_ID, SEQ_NO, ACTION_NAME, TARGET_KIND, TARGET_ID, ACTOR_ID, ACTOR_NAME, ACT_DTTM,
+                BEFORE_JSON, AFTER_JSON, PREV_HASH, ENTRY_HASH,
+                SYS_RUSR_ID, SYS_RUSR_IP, SYS_RUSR_DTTM, SYS_MUSR_ID, SYS_MUSR_IP, SYS_MUSR_DTTM)
+        VALUES (#{libId}, #{seq}, #{action}, #{targetKind}, #{targetId}, #{actorId}, #{actorName}, #{sysAt},
+                #{beforeJson}, #{afterJson}, #{prevHash}, #{entryHash},
+                #{sysUserId}, #{sysIp}, #{sysAt}, #{sysUserId}, #{sysIp}, #{sysAt})
+    </insert>
+
+</mapper>

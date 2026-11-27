@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SMOA 로그인</title>
+  <link rel="stylesheet" href="/assets/theme.css">
+  <link rel="stylesheet" href="/assets/app.css">
+  <script src="/assets/theme.js"></script>
+</head>
+<body>
+  <main class="auth">
+    <section class="auth-art">
+      <div class="brand">
+        <img class="brand-mark" src="/assets/smoa-mark.png" width="36" height="36" alt="">
+        <div class="brand-name" id="brand">SMOA</div>
+      </div>
+      <div>
+        <h1>한 사람의 여정부터,<br>전체의 흐름까지.</h1>
+        <p>매일의 기록을 연결하고 변화를 살펴보세요.</p>
+      </div>
+      <small>계정은 관리자가 발급합니다.</small>
+    </section>
+    <section class="auth-card">
+      <div class="auth-tools" data-display-controls></div>
+      <h2>로그인</h2>
+      <p class="intro">관리자가 발급한 아이디와 비밀번호로 접속합니다.</p>
+      <form id="form">
+        <label>아이디
+          <input type="text" name="username" autocomplete="username" required maxlength="64" autofocus>
+        </label>
+        <label>비밀번호
+          <input type="password" name="password" autocomplete="current-password" required maxlength="128">
+        </label>
+        <p id="status" class="status error" role="alert"></p>
+        <button type="submit">로그인</button>
+      </form>
+    </section>
+  </main>
+  <script type="module" src="/assets/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+/*
+ * 색상 테마(4종 × 라이트/다크)와 밀도(3종). 기존 SMOA 데스크톱 앱 theme.css의 팔레트 값을 그대로 옮겼다.
+ * 팔레트는 색만 바꾼다. 배치·크기는 app.css가 이 변수들을 읽어 정한다.
+ * 선택은 theme.js가 <html data-design data-theme data-density>로 표시한다. 속성이 없으면 청량한 블루(라이트)이다.
+ */
+
+/* 밀도: 표 행 여백, 표 글자, 구획 간격 */
+:root {
+  --display-row-padding: 12px;
+  --display-table-text: 13px;
+  --display-section-gap: 22px;
+  --display-panel-radius: 9px;
+  --danger: #b3261e;
+  --ok: #17794a;
+  --focus: #f2a900;
+}
+:root[data-density="spacious"] {
+  --display-row-padding: 16px;
+  --display-table-text: 14px;
+  --display-section-gap: 30px;
+}
+:root[data-density="compact"] {
+  --display-row-padding: 8px;
+  --display-table-text: 12px;
+  --display-section-gap: 15px;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --danger: #ff9d94;
+  --ok: #7fd9a8;
+}
+
+/* 청량한 블루 (속성이 아직 없을 때의 기본값 포함. 다른 팔레트에 값이 새지 않도록 :not으로 제한) */
+:root:not([data-design]),
+:root[data-design="navy"] {
+  --design-background: #edf2fa;
+  --ink: #22364e;
+  --green: #245f9e;
+  --deep: #203b5d;
+  --muted: #4a617b;
+  --border: #d7e1ef;
+  --paper: #fcfdff;
+  --design-control: #f6f9ff;
+  --design-control-hover: #e7eef9;
+  --design-action: #225a96;
+  --design-action-hover: #194a80;
+  --design-table-head: #e1eaf7;
+  --design-table-row: #f0f5fb;
+  --design-table-hover: #e9f1fb;
+  --design-region-ink: #235d9c;
+  --design-region-tint: #dceaff;
+  --design-rate-ink: #32527d;
+  --design-rate-tint: #e4ebf7;
+  --design-nav-background: #14263f;
+  --design-nav-ink: #e6efff;
+  --design-nav-muted: #b3c5df;
+  --design-nav-line: #344c6d;
+  --design-nav-control: #243957;
+  --design-nav-active: #325582;
+  --design-nav-marker: #a8ceff;
+  --design-hero-start: #142945;
+  --design-hero-end: #214674;
+  --design-hero-ink: #f4f8ff;
+  --design-hero-label: #c6d8f4;
+  --design-score-surface: #172946;
+  --design-score-line: #86b8ff;
+}
+:root[data-design="navy"][data-theme="dark"] {
+  --design-background: #101a2a;
+  --ink: #e9f1fe;
+  --green: #a8cbfa;
+  --deep: #e2edfd;
+  --muted: #b4c4db;
+  --border: #344964;
+  --paper: #18263b;
+  --design-control: #233652;
+  --design-control-hover: #2a4264;
+  --design-action: #315f9b;
+  --design-action-hover: #356daa;
+  --design-table-head: #253b59;
+  --design-table-row: #1e3049;
+  --design-table-hover: #2a4262;
+  --design-region-ink: #a9ccff;
+  --design-region-tint: #2e4466;
+  --design-rate-ink: #bdd8ff;
+  --design-rate-tint: #304867;
+  --design-nav-background: #0c1729;
+  --design-nav-control: #1a2d49;
+  --design-nav-active: #2d4e79;
+  --design-score-surface: #202f4c;
+}
+
+/* 차분한 그린 */
+:root[data-design="sage"] {
+  --design-background: #f4f7f4;
+  --ink: #253b32;
+  --deep: #183e34;
+  --green: #176b58;
+  --muted: #52675b;
+  --border: #dce5dd;
+  --paper: #ffffff;
+  --design-control: #f8faf7;
+  --design-control-hover: #e6f1eb;
+  --design-action: #176b58;
+  --design-action-hover: #105744;
+  --design-table-head: #e6efe9;
+  --design-table-row: #f5f8f5;
+  --design-table-hover: #edf5ef;
+  --design-region-ink: #206e58;
+  --design-region-tint: #e6f3eb;
+  --design-rate-ink: #345f54;
+  --design-rate-tint: #e4efeb;
+  --design-nav-background: #f7faf6;
+  --design-nav-ink: #284435;
+  --design-nav-muted: #536859;
+  --design-nav-line: #d7e3d9;
+  --design-nav-control: #ffffff;
+  --design-nav-active: #d8ebe0;
+  --design-nav-marker: #24664e;
+  --design-hero-start: #e5f0e9;
+  --design-hero-end: #d8e8dc;
+  --design-score-surface: #23493d;
+  --design-score-line: #9dddb9;
+}
+:root[data-design="sage"][data-theme="dark"] {
+  --design-background: #15221d;
+  --ink: #e5efe7;
+  --deep: #d9f1e1;
+  --green: #95d6b4;
+  --muted: #afc6b7;
+  --border: #394e42;
+  --paper: #1d2d25;
+  --design-control: #263c31;
+  --design-control-hover: #334b3c;
+  --design-action: #28634b;
+  --design-action-hover: #327655;
+  --design-table-head: #2c4135;
+  --design-table-row: #223329;
+  --design-table-hover: #2d4436;
+  --design-region-ink: #a3dfbc;
+  --design-region-tint: #304c3b;
+  --design-rate-ink: #b1d8c0;
+  --design-rate-tint: #31463c;
+  --design-nav-background: #111f18;
+  --design-nav-ink: #e2eee5;
+  --design-nav-muted: #b0c3b1;
+  --design-nav-line: #314838;
+  --design-nav-control: #213629;
+  --design-nav-active: #2e4a38;
+  --design-nav-marker: #94d7ab;
+  --design-hero-start: #23382c;
+  --design-hero-end: #2a4536;
+}
+
+/* 따뜻한 샌드 */
+:root[data-design="sand"] {
+  --design-background: #f9f2e8;
+  --ink: #493427;
+  --green: #8e4b34;
+  --deep: #573b2c;
+  --muted: #6d5644;
+  --border: #ead9c9;
+  --paper: #fffdf8;
+  --design-control: #fff9f0;
+  --design-control-hover: #f4e7d8;
+  --design-action: #934d35;
+  --design-action-hover: #7a3e2b;
+  --design-table-head: #f1e3d3;
+  --design-table-row: #fcf5e9;
+  --design-table-hover: #f6e7d8;
+  --design-region-ink: #8d4b34;
+  --design-region-tint: #f4e0d3;
+  --design-rate-ink: #775327;
+  --design-rate-tint: #f3e6ce;
+  --design-nav-background: #f1e4d1;
+  --design-nav-ink: #4e3828;
+  --design-nav-muted: #695440;
+  --design-nav-line: #dbc5ae;
+  --design-nav-control: #fff8ed;
+  --design-nav-active: #e7ccb4;
+  --design-nav-marker: #8d4b34;
+  --design-hero-start: #f7ecdd;
+  --design-hero-end: #efddc7;
+  --design-score-surface: #603e2c;
+  --design-score-line: #f2c18e;
+}
+:root[data-design="sand"][data-theme="dark"] {
+  --design-background: #241b17;
+  --ink: #f4e8dc;
+  --green: #eab29a;
+  --deep: #f4e2d2;
+  --muted: #d2bca9;
+  --border: #5a473b;
+  --paper: #322622;
+  --design-control: #423129;
+  --design-control-hover: #513b30;
+  --design-action: #92563e;
+  --design-action-hover: #a36143;
+  --design-table-head: #4d382e;
+  --design-table-row: #392b24;
+  --design-table-hover: #4d382e;
+  --design-region-ink: #f0b69f;
+  --design-region-tint: #543b32;
+  --design-rate-ink: #edcea3;
+  --design-rate-tint: #544331;
+  --design-nav-background: #2b201b;
+  --design-nav-ink: #f1decb;
+  --design-nav-muted: #ccb5a1;
+  --design-nav-line: #584337;
+  --design-nav-control: #3e2d25;
+  --design-nav-active: #53382a;
+  --design-nav-marker: #e9a786;
+  --design-hero-start: #35281f;
+  --design-hero-end: #473629;
+}
+
+/* 데이터 저널 */
+:root[data-design="journal"] {
+  --design-background: #f7f5f0;
+  --ink: #272228;
+  --deep: #30212a;
+  --green: #933748;
+  --muted: #665e62;
+  --paper: #fffefb;
+  --border: #d9d1cb;
+  --design-control: #fffefb;
+  --design-control-hover: #f1e8e6;
+  --design-action: #873347;
+  --design-action-hover: #6f273a;
+  --design-table-head: #e9e3da;
+  --design-table-row: #f5f1eb;
+  --design-table-hover: #efe6e4;
+  --design-region-ink: #923648;
+  --design-region-tint: #f5e3e3;
+  --design-rate-ink: #425d65;
+  --design-rate-tint: #e3ecec;
+  --design-nav-background: #eeeae3;
+  --design-nav-ink: #30272c;
+  --design-nav-muted: #6c6065;
+  --design-nav-line: #c8bfb9;
+  --design-nav-control: #f8f5ef;
+  --design-nav-active: #e4d6d3;
+  --design-nav-marker: #873347;
+  --design-hero-start: #f5eeeb;
+  --design-hero-end: #ecdfdf;
+  --design-score-surface: #4e2c38;
+  --design-score-line: #efb0c2;
+}
+:root[data-design="journal"][data-theme="dark"] {
+  --design-background: #201c1e;
+  --ink: #f6efea;
+  --deep: #f9e8ec;
+  --green: #efa7b6;
+  --muted: #c1b2b6;
+  --paper: #292528;
+  --border: #51454b;
+  --design-control: #342d30;
+  --design-control-hover: #43353c;
+  --design-action: #8e3950;
+  --design-action-hover: #9c425b;
+  --design-table-head: #463a40;
+  --design-table-row: #30292d;
+  --design-table-hover: #42343b;
+  --design-region-ink: #f1adb9;
+  --design-region-tint: #4a2f38;
+  --design-rate-ink: #b0cfd3;
+  --design-rate-tint: #2d4146;
+  --design-nav-background: #282224;
+  --design-nav-ink: #f6efea;
+  --design-nav-muted: #c8babf;
+  --design-nav-line: #50444a;
+  --design-nav-control: #362d31;
+  --design-nav-active: #50353f;
+  --design-nav-marker: #f1adb9;
+  --design-hero-start: #30252a;
+  --design-hero-end: #412f36;
+}

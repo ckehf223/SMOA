@@ -1,0 +1,72 @@
+.report-view .row { align-items: flex-end; }
+.report-view .row > .field { margin: 0; }
+.report-period { display: grid; gap: 5px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.report-period legend { font-size: 13px; font-weight: 700; margin-bottom: 4px; padding: 0; }
+.report-date-pair, .report-presets, .report-segments { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.report-date-pair label.field { margin: 0; }
+.report-date-pair input { min-width: 8.5rem; }
+.report-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(10.5rem, 100%), 1fr));
+  gap: 10px;
+  margin-block: 10px 16px;
+}
+.report-card {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--design-table-row, var(--panel));
+}
+.report-card > h3 { margin: 0; font-size: 13px; }
+.report-card > strong { font-size: 23px; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.report-card > small { color: var(--muted); }
+.report-block { margin-block: 16px; }
+.report-block > h3 { margin: 0 0 8px; font-size: 16px; }
+.report-block > p { margin: 0 0 8px; }
+.report-block > .table-wrap { border: 1px solid var(--line); border-radius: var(--radius); }
+.report-block .data :is(th, td) { font-variant-numeric: tabular-nums; }
+.report-block .data tr > :first-child { min-width: 8rem; position: sticky; inset-inline-start: 0; }
+.report-block .data tbody tr > :first-child { background: var(--panel); }
+.report-block .data tbody tr:nth-child(even) > :first-child { background: var(--design-table-row); }
+.report-block .data tbody tr:hover > :first-child { background: var(--design-table-hover); }
+.report-block .data td:not(:first-child) { text-align: right; }
+.report-row-label { display: block; text-align: left; }
+.report-block .data tbody tr:has(.report-total) td { background: var(--design-table-head); font-weight: 700; }
+.report-group-link {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--design-action);
+  font: inherit;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+.report-group-link:hover { text-decoration: underline; }
+.report-change { display: inline-flex; gap: 6px; align-items: center; justify-content: end; min-width: 6.5rem; }
+.report-change meter { width: 3rem; height: 11px; }
+.report-change[data-direction="up"] { color: var(--design-action); }
+.report-change[data-direction="down"] { color: var(--error); }
+.report-change[data-direction="up"] meter { accent-color: var(--design-action); }
+.report-change[data-direction="down"] meter { accent-color: var(--error); }
+.report-heat-value { display: inline-grid; min-width: 3.5rem; gap: 2px; padding: 3px 6px; border-radius: 4px; }
+.report-heat-value small { color: inherit; white-space: nowrap; font-size: 11px; }
+.report-heat-value[data-level="1"] { background: color-mix(in srgb, var(--primary) 9%, transparent); }
+.report-heat-value[data-level="2"] { background: color-mix(in srgb, var(--primary) 17%, transparent); }
+.report-heat-value[data-level="3"] { background: color-mix(in srgb, var(--primary) 25%, transparent); }
+.report-heat-value[data-level="4"] { background: color-mix(in srgb, var(--primary) 33%, transparent); }
+.report-heat-value[data-delta="over"] { background: color-mix(in srgb, var(--primary) 17%, transparent); }
+.report-heat-value[data-delta="under"] { background: color-mix(in srgb, var(--error) 13%, transparent); }
+.report-segments button[aria-pressed="true"] { color: var(--primary-text); background: var(--primary); border-color: var(--primary); }
+.report-segments { margin-bottom: 8px; }
+.report-scope { margin: 8px 0 0; }
+
+@media (max-width: 760px) {
+  .report-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .report-card { padding: 10px; }
+  .report-date-pair input { max-width: 100%; }
+}
